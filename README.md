@@ -83,7 +83,7 @@ Accessing the URL for the app in the browser gives us a 500 error page as the do
 You will also see an exception in the Springboot console output.
 
 ```
-Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.springframework.web.client.ResourceAccessException: I/O error on GET request for "http://localhost:9000/products": Connection refused (Connection refused); nested exception is java.net.ConnectException: Connection refused (Connection refused)] with root cause
+ I/O error on GET request for "http://localhost:9000/products": Connection refused
 ```
 
 *Move on to [step 2](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step2#step-2---client-tested-but-integration-fails)*
