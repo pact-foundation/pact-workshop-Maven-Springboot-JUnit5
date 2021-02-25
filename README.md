@@ -55,44 +55,35 @@ The diagram below highlights the interaction for retrieving a product with ID 10
 
 ![Sequence Diagram](diagrams/workshop_step1_class-sequence-diagram.svg)
 
-You can see the client interface we created in `consumer/src/api.js`:
+You can see the service client interface we created in `consumer/src/main/java/io/pact/workshop/product_catalogue/clients/ProductServiceClient.java`:
 
-```javascript
-export class API {
+```java
+@Service
+public class ProductServiceClient {
+  @Autowired
+  private RestTemplate restTemplate;
 
-    constructor(url) {
-        if (url === undefined || url === "") {
-            url = process.env.REACT_APP_API_BASE_URL;
-        }
-        if (url.endsWith("/")) {
-            url = url.substr(0, url.length - 1)
-        }
-        this.url = url
-    }
+  @Value("${serviceClients.products.baseUrl}")
+  private String baseUrl;
 
-    withPath(path) {
-        if (!path.startsWith("/")) {
-            path = "/" + path
-        }
-        return `${this.url}${path}`
-    }
+  public ProductServiceResponse fetchProducts() {
+    return restTemplate.getForObject(baseUrl + "/products", ProductServiceResponse.class);
+  }
 
-    async getAllProducts() {
-        return axios.get(this.withPath("/products"))
-            .then(r => r.data);
-    }
-
-    async getProduct(id) {
-        return axios.get(this.withPath("/products/" + id))
-            .then(r => r.data);
-    }
+  public Product fetchProductById(long id) {
+    return restTemplate.getForObject(baseUrl + "/products/" + id, Product.class);
+  }
 }
 ```
 
-After forking or cloning the repository, we may want to install the dependencies `npm install`.
-We can run the client with `npm start --prefix consumer` - it should fail with the error below, because the Provider is not running.
+After forking or cloning the repository, we need to build the app and install the dependencies with `./mvnw verify`.
+We can run the app with `java -jar target/product-catalogue-0.0.1-SNAPSHOT.jar`.
 
-![Failed step1 page](diagrams/workshop_step1_failed_page.png)
+Accessing the URL for the app in the browser gives us a 500 error page as the downstream service is not running. 
+You will also see an exception in the Springboot console output.
 
-*Move on to [step 2](https://github.com/pact-foundation/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails)*
+```
+Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.springframework.web.client.ResourceAccessException: I/O error on GET request for "http://localhost:9000/products": Connection refused (Connection refused); nested exception is java.net.ConnectException: Connection refused (Connection refused)] with root cause
+```
 
+*Move on to [step 2](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step2#step-2---client-tested-but-integration-fails)*
