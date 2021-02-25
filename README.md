@@ -273,4 +273,161 @@ The issue is that the provider only knows about `/product/{id}` and `/products`.
 
 We need to have a conversation about what the endpoint should be, but first...
 
-*Move on to [step 3](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
+*Move on to [step 3](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step3#step-3---pact-to-the-rescue)*
+
+## Step 3 - Pact to the rescue
+
+Unit tests are written and executed in isolation of any other services. When we write tests for code that talk to
+other services, they are built on trust that the contracts are upheld. There is no way to validate that the 
+consumer and provider can communicate correctly.
+
+> An integration contract test is a test at the boundary of an external service verifying that it meets the 
+> contract expected by a consuming service — [Martin Fowler](https://martinfowler.com/bliki/IntegrationContractTest.html)
+
+Adding contract tests via Pact would have highlighted the `/product/{id}` endpoint was incorrect.
+
+Let us add Pact to the project and write a consumer pact test for the `GET /products/{id}` endpoint.
+
+*Provider states* is an important concept of Pact that we need to introduce. These states help define the state that the provider should be in for specific interactions. For the moment, we will initially be testing the following states:
+
+- `product with ID 10 exists`
+- `products exist`
+
+The consumer can define the state of an interaction using the `given` property.
+
+Pact test `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductServiceClientPactTest.java`:
+
+```java
+@SpringBootTest
+@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "ProductService")
+class ProductServiceClientPactTest {
+  @Autowired
+  private ProductServiceClient productServiceClient;
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact allProducts(PactDslWithProvider builder) {
+    return builder
+      .given("products exists")
+      .uponReceiving("get all products")
+      .path("/products")
+      .willRespondWith()
+      .status(200)
+      .body(
+        new PactDslJsonBody()
+          .minArrayLike("products", 1, 2)
+          .integerType("id", 9L)
+          .stringType("name", "Gem Visa")
+          .stringType("type", "CREDIT_CARD")
+          .closeObject()
+          .closeArray()
+      )
+      .toPact();
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact singleProduct(PactDslWithProvider builder) {
+    return builder
+      .given("product with ID 10 exists", "id", 10)
+      .uponReceiving("get product with ID 10")
+      .path("/products/10")
+      .willRespondWith()
+      .status(200)
+      .body(
+        new PactDslJsonBody()
+          .integerType("id", 10L)
+          .stringType("name", "28 Degrees")
+          .stringType("type", "CREDIT_CARD")
+          .stringType("code", "CC_001")
+          .stringType("version", "v1")
+      )
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "allProducts", port="9999")
+  void testAllProducts(MockServer mockServer) throws IOException {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    List<Product> products = productServiceClient.fetchProducts().getProducts();
+    assertThat(products, hasSize(2));
+    assertThat(products.get(0), is(equalTo(new Product(9L, "Gem Visa", "CREDIT_CARD", null, null))));
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "singleProduct", port="9999")
+  void testSingleProduct(MockServer mockServer) throws IOException {
+    Product product = productServiceClient.getProductById(10L);
+    assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
+  }
+}
+```
+
+
+![Test using Pact](diagrams/workshop_step3_pact.svg)
+
+These tests starts a mock server on a random port that acts as our provider service. To get this to work we update the 
+URL in the `ProductServiceClient` to point to the mock server that Pact provides for the test.
+
+Running this test also passes, but it creates a pact file which we can use to validate our assumptions on the 
+provider side, and have conversation around.
+
+```console
+❯ ./mvnw verify
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
+[INFO] Building product-catalogue 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ product-catalogue ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1 resource
+[INFO] Copying 6 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ product-catalogue ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ product-catalogue ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ product-catalogue ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ product-catalogue ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
+[INFO] Replacing main artifact with repackaged archive
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.013 s
+[INFO] Finished at: 2021-02-26T09:43:03+11:00
+[INFO] ------------------------------------------------------------------------
+```
+
+A pact file should have been generated in *consumer/target/pacts/ProductCatalogue-ProductService.json*
+
+*NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we 
+shouldn't write contract tests - because the version of the client we have may not always be in sync with the 
+deployed API - and also because we will write tests on the output appropriate to our specific needs.
+
+*Move on to [step 4](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step4#step-4---verify-the-provider)*
