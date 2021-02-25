@@ -262,7 +262,14 @@ Let's see what happens!
 
 ![Failed page](diagrams/workshop_step2_failed_page.png)
 
-Doh! We are getting 404 everytime we try to view detailed product information. On closer inspection, the provider only knows about `/product/{id}` and `/products`.
+Doh! We are getting 500 everytime we try to view detailed product information. On closer inspection, 
+we can see a 404 from the Product Service in the logs.
+
+```
+HttpClientErrorException$NotFound: 404 : [{"timestamp":"2021-02-25T05:27:51.264+00:00","status":404,"error":"Not Found","message":"","path":"/products/9"}]]
+```
+
+The issue is that the provider only knows about `/product/{id}` and `/products`.
 
 We need to have a conversation about what the endpoint should be, but first...
 

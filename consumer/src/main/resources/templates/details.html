@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Pact Workshop: Default product catalogue</title>
+    <title>Pact Workshop: Product details</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
@@ -12,20 +12,34 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1 th:text="${catalogue.name}" />
         <table class="table">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th>Type</th>
+                    <th>Field</th>
+                    <th>Value</th>
                     <th/>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="prod : ${catalogue.products}">
-                    <td th:text="${prod.name}" />
-                    <td th:text="${prod.type}" />
-                    <td><a th:href="${'/catalogue/' + prod.id}">Details ...</a></td>
+                <tr>
+                    <td>Id</td>
+                    <td th:text="${product.id}" />
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td th:text="${product.name}" />
+                </tr>
+                <tr>
+                    <td>Type</td>
+                    <td th:text="${product.type}" />
+                </tr>
+                <tr>
+                    <td>Code</td>
+                    <td th:text="${product.code}" />
+                </tr>
+                <tr>
+                    <td>Version</td>
+                    <td th:text="${product.version}" />
                 </tr>
             </tbody>
         </table>
