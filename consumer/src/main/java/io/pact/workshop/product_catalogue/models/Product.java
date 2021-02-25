@@ -8,4 +8,5 @@ public class Product {
   private final String name;
   private final String type;
   private final String version;
+  private final String code;
 }

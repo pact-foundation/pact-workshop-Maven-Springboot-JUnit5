@@ -102,7 +102,7 @@ You can see the client interface test we created in `consumer/src/test/java/io/p
   void getProductById(@Wiremock WireMockServer server, @WiremockUri String uri) {
       productServiceClient.setBaseUrl(uri);
       server.stubFor(
-          get(urlPathEqualTo("/products/100"))
+          get(urlPathEqualTo("/products/10"))
               .willReturn(aResponse()
               .withStatus(200)
               .withBody("{\n" +
@@ -114,8 +114,8 @@ You can see the client interface test we created in `consumer/src/test/java/io/p
               .withHeader("Content-Type", "application/json"))
       );
     
-      Product product = productServiceClient.getProductById(100);
-      assertThat(product, is(equalTo(new Product(50L, "28 Degrees", "CREDIT_CARD", "v1"))));
+      Product product = productServiceClient.getProductById(10);
+      assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1"))));
   }
 ```
 
@@ -159,112 +159,9 @@ Let's run this test and see it all pass:
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running io.pact.workshop.product_catalogue.clients.ProductServiceClientTest
-13:37:44.549 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating CacheAwareContextLoaderDelegate from class [org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate]
-13:37:44.559 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating BootstrapContext using constructor [public org.springframework.test.context.support.DefaultBootstrapContext(java.lang.Class,org.springframework.test.context.CacheAwareContextLoaderDelegate)]
-13:37:44.588 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating TestContextBootstrapper for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest] from class [org.springframework.boot.test.context.SpringBootTestContextBootstrapper]
-13:37:44.597 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Neither @ContextConfiguration nor @ContextHierarchy found for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest], using SpringBootContextLoader
-13:37:44.600 [main] DEBUG org.springframework.test.context.support.AbstractContextLoader - Did not detect default resource location for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]: class path resource [io/pact/workshop/product_catalogue/clients/ProductServiceClientTest-context.xml] does not exist
-13:37:44.600 [main] DEBUG org.springframework.test.context.support.AbstractContextLoader - Did not detect default resource location for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]: class path resource [io/pact/workshop/product_catalogue/clients/ProductServiceClientTestContext.groovy] does not exist
-13:37:44.600 [main] INFO org.springframework.test.context.support.AbstractContextLoader - Could not detect default resource locations for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]: no resource found for suffixes {-context.xml, Context.groovy}.
-13:37:44.601 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]: ProductServiceClientTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-13:37:44.629 [main] DEBUG org.springframework.test.context.support.ActiveProfilesUtils - Could not find an 'annotation declaring class' for annotation type [org.springframework.test.context.ActiveProfiles] and class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]
-13:37:44.673 [main] DEBUG org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider - Identified candidate component class: file [/home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/classes/io/pact/workshop/product_catalogue/Application.class]
-13:37:44.674 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration io.pact.workshop.product_catalogue.Application for test class io.pact.workshop.product_catalogue.clients.ProductServiceClientTest
-13:37:44.737 [main] DEBUG org.springframework.boot.test.context.SpringBootTestContextBootstrapper - @TestExecutionListeners is not present for class [io.pact.workshop.product_catalogue.clients.ProductServiceClientTest]: using defaults.
-13:37:44.737 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]
-13:37:44.745 [main] DEBUG org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Skipping candidate TestExecutionListener [org.springframework.test.context.transaction.TransactionalTestExecutionListener] due to a missing dependency. Specify custom listener classes or make the default listener classes and their required dependencies available. Offending class: [org/springframework/transaction/TransactionDefinition]
-13:37:44.745 [main] DEBUG org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Skipping candidate TestExecutionListener [org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener] due to a missing dependency. Specify custom listener classes or make the default listener classes and their required dependencies available. Offending class: [org/springframework/transaction/interceptor/TransactionAttribute]
-13:37:44.745 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@55a147cc, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@71ba6d4e, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@738dc9b, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@3c77d488, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@63376bed, org.springframework.test.context.support.DirtiesContextTestExecutionListener@4145bad8, org.springframework.test.context.event.EventPublishingTestExecutionListener@d86a6f, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@2892d68, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@5ab956d7, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@3646a422, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@750e2b97, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@3e27aa33, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@2e385cce]
-13:37:44.748 [main] DEBUG org.springframework.test.context.support.AbstractDirtiesContextTestExecutionListener - Before test class: context [DefaultTestContext@2e8c1c9b testClass = ProductServiceClientTest, testInstance = [null], testMethod = [null], testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@53fe15ff testClass = ProductServiceClientTest, locations = '{}', classes = '{class io.pact.workshop.product_catalogue.Application}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@9353778, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@1700915, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@31c88ec8, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@3427b02d, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@6eda5c9, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@7921b0a2], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true]], class annotated with @DirtiesContext [false] with mode [null].
-13:37:44.769 [main] DEBUG org.springframework.test.context.support.TestPropertySourceUtils - Adding inlined properties to environment: {spring.jmx.enabled=false, org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}
 
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v2.4.3)
+<<< Omitted lots of logs >>>
 
-2021-02-25 13:37:44.957  INFO 25640 --- [           main] i.p.w.p.c.ProductServiceClientTest       : Starting ProductServiceClientTest using Java 1.8.0_265 on ronald-P95xER with PID 25640 (started by ronald in /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer)
-2021-02-25 13:37:44.959  INFO 25640 --- [           main] i.p.w.p.c.ProductServiceClientTest       : No active profile set, falling back to default profiles: default
-2021-02-25 13:37:45.755  INFO 25640 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
-2021-02-25 13:37:45.936  INFO 25640 --- [           main] i.p.w.p.c.ProductServiceClientTest       : Started ProductServiceClientTest in 1.162 seconds (JVM running for 1.748)
-2021-02-25 13:37:46.147  INFO 25640 --- [           main] org.eclipse.jetty.util.log               : Logging initialized @1959ms to org.eclipse.jetty.util.log.Slf4jLog
-2021-02-25 13:37:46.224  INFO 25640 --- [           main] org.eclipse.jetty.server.Server          : jetty-9.4.36.v20210114; built: 2021-01-14T16:44:28.689Z; git: 238ec6997c7806b055319a6d11f8ae7564adc0de; jvm 1.8.0_265-b01
-2021-02-25 13:37:46.234  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Started o.e.j.s.ServletContextHandler@12a14b74{/__admin,null,AVAILABLE}
-2021-02-25 13:37:46.235  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Started o.e.j.s.ServletContextHandler@2be95d31{/,null,AVAILABLE}
-2021-02-25 13:37:46.265  INFO 25640 --- [           main] o.e.jetty.server.AbstractConnector       : Started NetworkTrafficServerConnector@9b9a327{HTTP/1.1, (http/1.1)}{0.0.0.0:34893}
-2021-02-25 13:37:46.265  INFO 25640 --- [           main] org.eclipse.jetty.server.Server          : Started @2078ms
-2021-02-25 13:37:46.266  INFO 25640 --- [           main] ru.lanwen.wiremock.ext.WiremockResolver  : Started wiremock server on localhost:34893
-2021-02-25 13:37:46.396  INFO 25640 --- [qtp801996095-24] o.e.j.s.handler.ContextHandler.ROOT      : RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
-2021-02-25 13:37:46.440  INFO 25640 --- [qtp801996095-24] WireMock                                 : Request received:
-127.0.0.1 - GET /products/10
-
-Accept: [application/json, application/*+json]
-Connection: [keep-alive]
-User-Agent: [Apache-HttpClient/4.5.13 (Java/1.8.0_265)]
-Host: [localhost:34893]
-Accept-Encoding: [gzip,deflate]
-
-
-
-Matched response definition:
-{
-  "status" : 200,
-  "body" : "{\n            \"id\": 10,\n            \"type\": \"CREDIT_CARD\",\n            \"name\": \"28 Degrees\",\n            \"version\": \"v1\"\n        }\n",
-  "headers" : {
-    "Content-Type" : "application/json"
-  }
-}
-
-Response:
-HTTP/1.1 200
-Content-Type: [application/json]
-Matched-Stub-Id: [25ea5cf1-9b0c-4e90-9aed-c53bbefd1814]
-
-
-2021-02-25 13:37:46.465  INFO 25640 --- [           main] ru.lanwen.wiremock.ext.WiremockResolver  : Stopping wiremock server on localhost:34893
-2021-02-25 13:37:46.468  INFO 25640 --- [           main] o.e.jetty.server.AbstractConnector       : Stopped NetworkTrafficServerConnector@9b9a327{HTTP/1.1, (http/1.1)}{0.0.0.0:0}
-2021-02-25 13:37:46.468  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Stopped o.e.j.s.ServletContextHandler@2be95d31{/,null,STOPPED}
-2021-02-25 13:37:46.469  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Stopped o.e.j.s.ServletContextHandler@12a14b74{/__admin,null,STOPPED}
-2021-02-25 13:37:46.478  INFO 25640 --- [           main] org.eclipse.jetty.server.Server          : jetty-9.4.36.v20210114; built: 2021-01-14T16:44:28.689Z; git: 238ec6997c7806b055319a6d11f8ae7564adc0de; jvm 1.8.0_265-b01
-2021-02-25 13:37:46.479  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Started o.e.j.s.ServletContextHandler@1d8b0500{/__admin,null,AVAILABLE}
-2021-02-25 13:37:46.479  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Started o.e.j.s.ServletContextHandler@76544c0a{/,null,AVAILABLE}
-2021-02-25 13:37:46.480  INFO 25640 --- [           main] o.e.jetty.server.AbstractConnector       : Started NetworkTrafficServerConnector@49469ffa{HTTP/1.1, (http/1.1)}{0.0.0.0:32859}
-2021-02-25 13:37:46.480  INFO 25640 --- [           main] org.eclipse.jetty.server.Server          : Started @2293ms
-2021-02-25 13:37:46.480  INFO 25640 --- [           main] ru.lanwen.wiremock.ext.WiremockResolver  : Started wiremock server on localhost:32859
-2021-02-25 13:37:46.485  INFO 25640 --- [tp1487884406-33] o.e.j.s.handler.ContextHandler.ROOT      : RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
-2021-02-25 13:37:46.487  INFO 25640 --- [tp1487884406-33] WireMock                                 : Request received:
-127.0.0.1 - GET /products
-
-Accept: [application/json, application/*+json]
-Connection: [keep-alive]
-User-Agent: [Apache-HttpClient/4.5.13 (Java/1.8.0_265)]
-Host: [localhost:32859]
-Accept-Encoding: [gzip,deflate]
-
-
-
-Matched response definition:
-{
-  "status" : 200,
-  "body" : "{\n\"products\": [\n            {\n                \"id\": 9,\n                \"type\": \"CREDIT_CARD\",\n                \"name\": \"GEM Visa\",\n                \"version\": \"v2\"\n            },\n            {\n                \"id\": 10,\n                \"type\": \"CREDIT_CARD\",\n                \"name\": \"28 Degrees\",\n                \"version\": \"v1\"\n            }\n        ]\n\n}",
-  "headers" : {
-    "Content-Type" : "application/json"
-  }
-}
-
-Response:
-HTTP/1.1 200
-Content-Type: [application/json]
-Matched-Stub-Id: [dcfa90de-b29d-477f-b12e-a56d56500849]
-
-
-2021-02-25 13:37:46.491  INFO 25640 --- [           main] ru.lanwen.wiremock.ext.WiremockResolver  : Stopping wiremock server on localhost:32859
-2021-02-25 13:37:46.491  INFO 25640 --- [           main] o.e.jetty.server.AbstractConnector       : Stopped NetworkTrafficServerConnector@49469ffa{HTTP/1.1, (http/1.1)}{0.0.0.0:0}
-2021-02-25 13:37:46.491  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Stopped o.e.j.s.ServletContextHandler@76544c0a{/,null,STOPPED}
-2021-02-25 13:37:46.492  INFO 25640 --- [           main] o.e.jetty.server.handler.ContextHandler  : Stopped o.e.j.s.ServletContextHandler@1d8b0500{/__admin,null,STOPPED}
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.952 s - in io.pact.workshop.product_catalogue.clients.ProductServiceClientTest
 2021-02-25 13:37:46.510  INFO 25640 --- [extShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
 [INFO] 
@@ -292,27 +189,74 @@ Meanwhile, our provider team has started building out their API in parallel. Let
 
 ```console
 # Terminal 1
-❯ 
+❯ mvn spring-boot:run
 
-Provider API listening on port 8080...
+<<< Omitted >>>
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.4.3)
+
+2021-02-25 13:46:36.835  INFO 26565 --- [           main] i.p.w.product_catalogue.Application      : Starting Application using Java 1.8.0_265 on ronald-P95xER with PID 26565 (/home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/classes started by ronald in /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer)
+2021-02-25 13:46:36.836  INFO 26565 --- [           main] i.p.w.product_catalogue.Application      : No active profile set, falling back to default profiles: default
+2021-02-25 13:46:37.274  INFO 26565 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2021-02-25 13:46:37.279  INFO 26565 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2021-02-25 13:46:37.279  INFO 26565 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.43]
+2021-02-25 13:46:37.303  INFO 26565 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2021-02-25 13:46:37.303  INFO 26565 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 441 ms
+2021-02-25 13:46:37.405  INFO 26565 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-25 13:46:37.481  INFO 26565 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2021-02-25 13:46:37.486  INFO 26565 --- [           main] i.p.w.product_catalogue.Application      : Started Application in 0.866 seconds (JVM running for 1.051)
+
 ```
 
 ```console
 # Terminal 2
-> npm start --prefix consumer
+>  mvn spring-boot:run
 
-Compiled successfully!
+<<< Omitted >>>
 
-You can now view pact-workshop-js in the browser.
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.4.3)
 
-  Local:            http://localhost:3000/
-  On Your Network:  http://192.168.20.17:3000/
-
-Note that the development build is not optimized.
-To create a production build, use npm run build.
+2021-02-25 16:06:08.671  INFO 40129 --- [           main] i.p.w.product_service.Application        : Starting Application using Java 1.8.0_265 on ronald-P95xER with PID 40129 (/home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/classes started by ronald in /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider)
+2021-02-25 16:06:08.673  INFO 40129 --- [           main] i.p.w.product_service.Application        : No active profile set, falling back to default profiles: default
+2021-02-25 16:06:08.990  INFO 40129 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2021-02-25 16:06:09.013  INFO 40129 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 1 JPA repository interfaces.
+2021-02-25 16:06:09.159  INFO 40129 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$c6a6464a] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-25 16:06:09.189  INFO 40129 --- [           main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2021-02-25 16:06:09.344  INFO 40129 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 9000 (http)
+2021-02-25 16:06:09.349  INFO 40129 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2021-02-25 16:06:09.349  INFO 40129 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.43]
+2021-02-25 16:06:09.382  INFO 40129 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2021-02-25 16:06:09.382  INFO 40129 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 684 ms
+2021-02-25 16:06:09.469  INFO 40129 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2021-02-25 16:06:09.525  INFO 40129 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2021-02-25 16:06:09.549  INFO 40129 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2021-02-25 16:06:09.569  INFO 40129 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.4.28.Final
+2021-02-25 16:06:09.621  INFO 40129 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2021-02-25 16:06:09.702  INFO 40129 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2021-02-25 16:06:09.954  INFO 40129 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2021-02-25 16:06:09.958  INFO 40129 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2021-02-25 16:06:10.093  WARN 40129 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2021-02-25 16:06:10.149  INFO 40129 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-25 16:06:10.259  INFO 40129 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 9000 (http) with context path ''
+2021-02-25 16:06:10.265  INFO 40129 --- [           main] i.p.w.product_service.Application        : Started Application in 1.812 seconds (JVM running for 2.0)
+2021-02-25 16:06:11.833  INFO 40129 --- [nio-9000-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-02-25 16:06:11.833  INFO 40129 --- [nio-9000-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2021-02-25 16:06:11.834  INFO 40129 --- [nio-9000-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
 ```
 
-You should now see a screen showing 3 different products. There is a `See more!` button which should display detailed product information.
+You should now see a screen showing 3 different products. There is a `Details ...` link which should display detailed product information.
 
 Let's see what happens!
 

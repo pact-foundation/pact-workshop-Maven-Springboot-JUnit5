@@ -12,7 +12,23 @@
 </head>
 <body>
     <div class="container-fluid">
-        <p th:text="'Hello, ' + ${catalogue} + '!'" />
+        <h1 th:text="${catalogue.name}" />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Type</th>
+                    <th/>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="prod : ${catalogue.products}">
+                    <td th:text="${prod.name}" />
+                    <td th:text="${prod.type}" />
+                    <td><a th:href="@{catalogue/details/${prod.id}}">Details ...</a></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

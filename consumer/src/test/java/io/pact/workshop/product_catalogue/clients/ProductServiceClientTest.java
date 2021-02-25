@@ -78,6 +78,6 @@ class ProductServiceClientTest {
     );
 
     Product product = productServiceClient.getProductById(10);
-    assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1"))));
+    assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", null))));
   }
 }
