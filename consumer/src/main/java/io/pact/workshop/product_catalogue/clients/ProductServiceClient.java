@@ -1,0 +1,19 @@
+package io.pact.workshop.product_catalogue.clients;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class ProductServiceClient {
+  @Autowired
+  private RestTemplate restTemplate;
+
+  @Value("${serviceClients.products.baseUrl}")
+  private String baseUrl;
+
+  public ProductServiceResponse fetchProducts() {
+    return restTemplate.getForObject(baseUrl + "/products", ProductServiceResponse.class);
+  }
+}

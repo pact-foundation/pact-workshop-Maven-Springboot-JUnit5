@@ -1,0 +1,3 @@
+serviceClients:
+  products:
+    baseUrl: "http://localhost:9000"
