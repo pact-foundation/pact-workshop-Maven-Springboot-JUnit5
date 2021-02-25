@@ -21,4 +21,12 @@ public class ProductServiceClient {
   public Product getProductById(long id) {
     return restTemplate.getForObject(baseUrl + "/products/" + id, Product.class);
   }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public void setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 }
