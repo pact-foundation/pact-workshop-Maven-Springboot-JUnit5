@@ -273,4 +273,4 @@ The issue is that the provider only knows about `/product/{id}` and `/products`.
 
 We need to have a conversation about what the endpoint should be, but first...
 
-*Move on to [step 3](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
+*Move on to [step 3](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step3#step-3---pact-to-the-rescue)*
