@@ -1,0 +1,7 @@
+.error-page .details {
+  display: flex;
+}
+
+.error-page .error-details {
+  padding: 1rem;
+}
