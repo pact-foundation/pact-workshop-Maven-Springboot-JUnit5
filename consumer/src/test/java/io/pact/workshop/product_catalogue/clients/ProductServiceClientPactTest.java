@@ -37,6 +37,7 @@ class ProductServiceClientPactTest {
       .given("products exists")
         .uponReceiving("get all products")
         .path("/products")
+        .matchHeader("Authorization", "Bearer [a-zA-Z0-9=\\+/]+", "Bearer AAABd9yHUjI=")
       .willRespondWith()
         .status(200)
         .body(
@@ -66,6 +67,7 @@ class ProductServiceClientPactTest {
       .given("product with ID 10 exists", "id", 10)
       .uponReceiving("get product with ID 10")
         .path("/product/10")
+        .matchHeader("Authorization", "Bearer [a-zA-Z0-9=\\+/]+", "Bearer AAABd9yHUjI=")
       .willRespondWith()
         .status(200)
         .body(
@@ -93,6 +95,7 @@ class ProductServiceClientPactTest {
       .given("no products exists")
       .uponReceiving("get all products")
         .path("/products")
+        .matchHeader("Authorization", "Bearer [a-zA-Z0-9=\\+/]+", "Bearer AAABd9yHUjI=")
       .willRespondWith()
         .status(200)
         .body(
@@ -115,6 +118,7 @@ class ProductServiceClientPactTest {
       .given("product with ID 10 does not exist", "id", 10)
       .uponReceiving("get product with ID 10")
         .path("/product/10")
+        .matchHeader("Authorization", "Bearer [a-zA-Z0-9=\\+/]+", "Bearer AAABd9yHUjI=")
       .willRespondWith()
         .status(404)
       .toPact();
@@ -129,6 +133,50 @@ class ProductServiceClientPactTest {
       fail("Expected service call to throw an exception");
     } catch (HttpClientErrorException ex) {
       assertThat(ex.getMessage(), containsString("404 Not Found"));
+    }
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noAuthToken(PactDslWithProvider builder) {
+    return builder
+      .uponReceiving("get all products with no auth token")
+        .path("/products")
+      .willRespondWith()
+        .status(401)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "noAuthToken")
+  void testNoAuthToken(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.fetchProducts();
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("401 Unauthorized"));
+    }
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noAuthToken2(PactDslWithProvider builder) {
+    return builder
+      .uponReceiving("get product by ID with no auth token")
+        .path("/product/10")
+      .willRespondWith()
+        .status(401)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "noAuthToken2")
+  void testNoAuthToken2(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.getProductById(10L);
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("401 Unauthorized"));
     }
   }
 }

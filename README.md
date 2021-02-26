@@ -878,3 +878,141 @@ different tests. In this scenario we could have used `no products exist` for bot
 equally been valid.
 
 *Move on to [step 8](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step8#step-8---authorization)*
+
+## Step 8 - Authorization
+
+It turns out that not everyone should be able to use the API. After a discussion with the team, it was decided 
+that a time-bound bearer token would suffice. The token must be base64 encoded format of a timestamp value and 
+within 1 hour of the current time.
+
+In the case a valid bearer token is not provided, we expect a `401`. Let's update the consumer to pass the 
+bearer token, and capture this new `401` scenario.
+
+In `consumer/src/main/java/io/pact/workshop/product_catalogue/clients/ProductServiceClient.java`:
+
+```java
+@Service
+public class ProductServiceClient {
+  @Autowired
+  private RestTemplate restTemplate;
+
+  @Value("${serviceClients.products.baseUrl}")
+  private String baseUrl;
+
+  public ProductServiceResponse fetchProducts() {
+    return callApi("/products", ProductServiceResponse.class);
+  }
+
+  public Product getProductById(long id) {
+    return callApi("/product/" + id, Product.class);
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public void setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
+
+  private <T> T callApi(String path, Class<T> responseType) {
+    HttpHeaders headers = new HttpHeaders();
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.putLong(System.currentTimeMillis());
+    headers.setBearerAuth(Base64.getEncoder().encodeToString(buffer.array()));
+    HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+    return restTemplate.exchange(baseUrl + path, HttpMethod.GET, requestEntity, responseType).getBody();
+  }
+}
+```
+
+We add in `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductServiceClientPactTest.java`:
+
+```java
+    .matchHeader("Authorization", "Bearer [a-zA-Z0-9=\\+/]+", "Bearer AAABd9yHUjI=")
+```
+
+to all the interactions and two new interactions: 
+
+```
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noAuthToken(PactDslWithProvider builder) {
+    return builder
+      .uponReceiving("get all products with no auth token")
+        .path("/products")
+      .willRespondWith()
+        .status(401)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "noAuthToken")
+  void testNoAuthToken(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.fetchProducts();
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("401 Unauthorized"));
+    }
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noAuthToken2(PactDslWithProvider builder) {
+    return builder
+      .uponReceiving("get product by ID with no auth token")
+        .path("/product/10")
+      .willRespondWith()
+        .status(401)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "noAuthToken2")
+  void testNoAuthToken2(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.getProductById(10L);
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("401 Unauthorized"));
+    }
+  }
+```
+
+Then re-run the Pact test to generate a new Pact file.
+
+Let's test the provider. Copy the updated pact file into the provider's pact directory and run the tests:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[ERROR] Tests run: 6, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 4.631 s <<< FAILURE! - in io.pact.workshop.product_service.PactVerificationTest
+[ERROR] pactVerificationTestTemplate{PactVerificationContext}[1]  Time elapsed: 0.487 s  <<< FAILURE!
+java.lang.AssertionError: 
+ProductCatalogue - Upon get all products with no auth token 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get all products with no auth token: has status code 401
+
+    1.1) status: expected status of 401 but was 200
+
+
+        at io.pact.workshop.product_service.PactVerificationTest.pactVerificationTestTemplate(PactVerificationTest.java:41)
+
+[ERROR] pactVerificationTestTemplate{PactVerificationContext}[2]  Time elapsed: 0.027 s  <<< FAILURE!
+java.lang.AssertionError: 
+ProductCatalogue - Upon get product by ID with no auth token 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get product by ID with no auth token: has status code 401
+
+    1.1) status: expected status of 401 but was 200
+```
+
+Now with the most recently added interactions where we are expecting a response of 401 when no authorization header is sent, 
+we are getting 200...
+
+Move on to [step 9](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step9#step-9---implement-authorisation-on-the-provider)*
