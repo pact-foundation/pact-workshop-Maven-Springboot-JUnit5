@@ -1,6 +1,8 @@
 package io.pact.workshop.product_service.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -19,6 +21,7 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     String header = request.getHeader("Authorization");
     if (tokenValid(header)) {
+      SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken("user", header));
       filterChain.doFilter(request, response);
     } else {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
