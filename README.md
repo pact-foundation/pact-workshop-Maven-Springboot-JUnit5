@@ -1131,7 +1131,7 @@ the authentication component is a common one. In our use case, we are going to u
 _Request Filtering_, by modifying the request that gets sent.
 
 _NOTE_: This is an advanced concept and should be used carefully, as it has the potential to invalidate a 
-contract by bypassing its constraints. See https://github.com/DiUS/pact-jvm/blob/master/provider/junit/README.md#modifying-the-requests-before-they-are-sent 
+contract by bypassing its constraints. See https://github.com/pact-foundation/pact-jvm/blob/master/provider/junit5/README.md#modifying-the-requests-before-they-are-sent 
 for more details on this.
 
 The approach we are going to take to inject the header is as follows:
