@@ -1016,3 +1016,108 @@ Now with the most recently added interactions where we are expecting a response 
 any authentication, so we are getting 200...
 
 *Move on to [step 9](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step9#step-9---implement-authorisation-on-the-provider)*
+
+## Step 9 - Implement authorisation on the provider
+
+We will setup Spring Security to check the Authorization header and deny the request with `401` if the token is 
+missing or older than 1 hour.
+
+In `provider/src/main/java/io/pact/workshop/product_service/config/BearerAuthorizationFilter.java`
+
+```java
+public class BearerAuthorizationFilter extends OncePerRequestFilter {
+
+  public static final long ONE_HOUR = 60 * 60 * 1000L;
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    String header = request.getHeader("Authorization");
+    if (tokenValid(header)) {
+      filterChain.doFilter(request, response);
+    } else {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+  }
+
+  private boolean tokenValid(String header) {
+    boolean hasBearerToken = StringUtils.isNotEmpty(header) && header.startsWith("Bearer ");
+    if (hasBearerToken) {
+      String token = header.substring("Bearer ".length());
+      ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+      buffer.put(Base64.getDecoder().decode(token));
+      buffer.flip();
+      long timestamp = buffer.getLong();
+      return System.currentTimeMillis() - timestamp <= ONE_HOUR;
+    } else {
+      return false;
+    }
+  }
+}
+```
+
+Let's test this out:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   PactVerificationTest.pactVerificationTestTemplate:41 ProductCatalogue - Upon get all products 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get all products: has status code 200
+
+    1.1) status: expected status of 200 but was 401
+
+    1.2) header: Expected a header 'Content-Type' but was missing
+
+    1.3) body-content-type: Expected a response type of 'application/json' but the actual type was 'null'
+
+
+[ERROR]   PactVerificationTest.pactVerificationTestTemplate:41 ProductCatalogue - Upon get product with ID 10 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get product with ID 10: has status code 404
+
+    1.1) status: expected status of 404 but was 401
+
+
+[ERROR]   PactVerificationTest.pactVerificationTestTemplate:41 ProductCatalogue - Upon get product with ID 10 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get product with ID 10: has status code 200
+
+    1.1) status: expected status of 200 but was 401
+
+    1.2) header: Expected a header 'Content-Type' but was missing
+
+    1.3) body-content-type: Expected a response type of 'application/json' but the actual type was 'null'
+
+
+[ERROR]   PactVerificationTest.pactVerificationTestTemplate:41 ProductCatalogue - Upon get all products 
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get all products: has status code 200
+
+    1.1) status: expected status of 200 but was 401
+
+    1.2) header: Expected a header 'Content-Type' but was missing
+
+    1.3) body-content-type: Expected a response type of 'application/json' but the actual type was 'null'
+
+
+[INFO] 
+[ERROR] Tests run: 6, Failures: 4, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+```
+
+Oh, dear. _More_ tests are failing. Can you understand why?
+
+*Move on to [step 10](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step10#step-10---request-filters-on-the-provider)*
