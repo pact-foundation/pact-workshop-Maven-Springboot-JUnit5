@@ -1015,4 +1015,4 @@ Failures:
 Now with the most recently added interactions where we are expecting a response of 401, but the provider is not handling 
 any authentication, so we are getting 200...
 
-Move on to [step 9](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step9#step-9---implement-authorisation-on-the-provider)*
+*Move on to [step 9](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step9#step-9---implement-authorisation-on-the-provider)*
