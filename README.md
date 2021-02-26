@@ -528,7 +528,7 @@ Then we need to update the Pact test `ID 10 exists` to use the correct endpoint 
 
 In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductServiceClientPactTest.java`:
 
-```javascript
+```java
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact singleProduct(PactDslWithProvider builder) {
     return builder
