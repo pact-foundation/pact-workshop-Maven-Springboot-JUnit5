@@ -520,3 +520,117 @@ The test has failed, as the expected path `/products/{id}` is returning 404. We 
 The correct endpoint which the consumer should call is `/product/{id}`.
 
 Move on to [step 5](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step5#step-5---back-to-the-client-we-go)
+
+## Step 5 - Back to the client we go
+
+We now need to update the consumer client and tests to hit the correct product path.
+
+First, we need to update the GET route for the client:
+
+In `consumer/src/main/java/io/pact/workshop/product_catalogue/clients/ProductServiceClient.java`:
+
+```java
+  public Product getProductById(long id) {
+    return restTemplate.getForObject(baseUrl + "/product/" + id, Product.class);
+  }
+```
+
+Then we need to update the Pact test `ID 10 exists` to use the correct endpoint in `path`.
+
+In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductServiceClientPactTest.java`:
+
+```javascript
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact singleProduct(PactDslWithProvider builder) {
+    return builder
+      .given("product with ID 10 exists", "id", 10)
+      .uponReceiving("get product with ID 10")
+        .path("/product/10")
+      .willRespondWith()
+        .status(200)
+        .body(
+          new PactDslJsonBody()
+            .integerType("id", 10L)
+            .stringType("name", "28 Degrees")
+            .stringType("type", "CREDIT_CARD")
+            .stringType("code", "CC_001")
+            .stringType("version", "v1")
+        )
+      .toPact();
+  }
+```
+
+![Pact Verification](diagrams/workshop_step5_pact.svg)
+
+Let's run and generate an updated pact file on the client:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
+[INFO] Replacing main artifact with repackaged archive
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+Now we run the provider tests again with the updated contract
+
+Copy the updated contract located in `consumer/target/pacts/ProductCatalogue-ProductService.json` to `provider/pacts`.
+
+Run the command:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+Verifying a pact between ProductCatalogue and ProductService
+  [Using File pacts/ProductCatalogue-ProductService.json]
+  Given product with ID 10 exists
+  get product with ID 10
+2021-02-26 13:11:45.229  INFO 96199 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-02-26 13:11:45.229  INFO 96199 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2021-02-26 13:11:45.230  INFO 96199 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    returns a response which
+      has status code 200 (OK)
+      has a matching body (OK)
+2021-02-26 13:11:45.356  WARN 96199 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   : Not all of the 2 were verified. The following were missing:
+2021-02-26 13:11:45.356  WARN 96199 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   :     get all products
+2021-02-26 13:11:45.366  INFO 96199 --- [           main] p.j.PactVerificationStateChangeExtension : Invoking state change method 'products exists':SETUP
+
+Verifying a pact between ProductCatalogue and ProductService
+  [Using File pacts/ProductCatalogue-ProductService.json]
+  Given products exists
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      has a matching body (OK)
+2021-02-26 13:11:45.485  WARN 96199 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   : Skipping publishing of verification results as it has been disabled (pact.verifier.publishResults is not 'true')
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.573 s - in io.pact.workshop.product_service.PactVerificationTest
+2021-02-26 13:11:45.527  INFO 96199 --- [extShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-26 13:11:45.527  INFO 96199 --- [extShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2021-02-26 13:11:45.528  INFO 96199 --- [extShutdownHook] .SchemaDropperImpl$DelayedDropActionImpl : HHH000477: Starting delayed evictData of schema as part of SessionFactory shut-down'
+2021-02-26 13:11:45.532  INFO 96199 --- [extShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2021-02-26 13:11:45.534  INFO 96199 --- [extShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+```
+
+Yay - green ✅!
+
+Move on to [step 6](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step6#step-6---consumer-updates-contract-for-missing-products)
