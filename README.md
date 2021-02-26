@@ -793,3 +793,88 @@ We could resolve this by updating our consumer test to use a known non-existent 
 how Provider states work more generally.
 
 *Move on to [step 7](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step7#step-7---adding-the-missing-states)*
+
+## Step 7 - Adding the missing states
+
+We need to update our provider code to deal with missing products and send a `404` response. However, our test data 
+fixture also has product ID 10 and 11 in our database.
+
+In this step, we will add some state handlers to our provider Pact verification test, which will update the state 
+of our data store depending on which states the consumers require.
+
+States are invoked prior to the actual test function is invoked. For each interaction in a pact file, the order of execution is as follows:
+
+```
+BeforeEach -> StateHandler (setup) -> RequestFilter -> Execute Provider Test -> StateHandler (teardown) -> AfterEach
+```
+
+We're going to add handlers for all our states:
+
+- products exist
+- no products exist
+- product with ID 10 exists
+- product with ID 10 does not exist
+
+Let's open up our provider Pact verification test in `provider/src/test/java/io/pact/workshop/product_service/PactVerificationTest.java`:
+
+```java
+  @State(value = "products exists", action = StateChangeAction.SETUP)
+  void productsExists() {
+    productRepository.deleteAll();
+    productRepository.saveAll(Arrays.asList(
+      new Product(100L, "Test Product 1", "CREDIT_CARD", "v1", "CC_001"),
+      new Product(200L, "Test Product 2", "CREDIT_CARD", "v1", "CC_002"),
+      new Product(300L, "Test Product 3", "PERSONAL_LOAN", "v1", "PL_001"),
+      new Product(400L, "Test Product 4", "SAVINGS", "v1", "SA_001")
+    ));
+  }
+
+  @State(value = "no products exists", action = StateChangeAction.SETUP)
+  void noProductsExist() {
+    productRepository.deleteAll();
+  }
+
+  @State(value = "product with ID 10 exists", action = StateChangeAction.SETUP)
+  void productExists(Map<String, Object> params) {
+    long productId = ((Number) params.get("id")).longValue();
+    Optional<Product> product = productRepository.findById(productId);
+    if (!product.isPresent()) {
+      productRepository.save(new Product(productId, "Product", "TYPE", "v1", "001"));
+    }
+  }
+
+  @State(value = "product with ID 10 does not exist", action = StateChangeAction.SETUP)
+  void productNotExist(Map<String, Object> params) {
+    long productId = ((Number) params.get("id")).longValue();
+    Optional<Product> product = productRepository.findById(productId);
+    if (product.isPresent()) {
+      productRepository.deleteById(productId);
+    }
+  }
+```
+
+Let's see how we go now:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/product-service-1.0-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+_NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contract tests. You can reuse states amongst 
+different tests. In this scenario we could have used `no products exist` for both tests which would have 
+equally been valid.
+
+*Move on to [step 8](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step8#step-8---authorization)*
