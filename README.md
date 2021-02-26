@@ -634,7 +634,7 @@ We're now going to add 2 more scenarios for the contract
 
 Let's write a test for these scenarios, and then generate an updated pact file.
 
-In `consumer/src/api.pact.spec.js`:
+In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductServiceClientPactTest.java`:
 
 ```java
   @Pact(consumer = "ProductCatalogue")
