@@ -12,14 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
@@ -48,6 +51,15 @@ class ProductServiceClientPactTest {
       .toPact();
   }
 
+  @Test
+  @PactTestFor(pactMethod = "allProducts")
+  void testAllProducts(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    List<Product> products = productServiceClient.fetchProducts().getProducts();
+    assertThat(products, hasSize(2));
+    assertThat(products.get(0), is(equalTo(new Product(9L, "Gem Visa", "CREDIT_CARD", null, null))));
+  }
+
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact singleProduct(PactDslWithProvider builder) {
     return builder
@@ -68,18 +80,55 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "allProducts", port="9999")
-  void testAllProducts(MockServer mockServer) throws IOException {
+  @PactTestFor(pactMethod = "singleProduct")
+  void testSingleProduct(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
-    List<Product> products = productServiceClient.fetchProducts().getProducts();
-    assertThat(products, hasSize(2));
-    assertThat(products.get(0), is(equalTo(new Product(9L, "Gem Visa", "CREDIT_CARD", null, null))));
+    Product product = productServiceClient.getProductById(10L);
+    assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noProducts(PactDslWithProvider builder) {
+    return builder
+      .given("no products exists")
+      .uponReceiving("get all products")
+        .path("/products")
+      .willRespondWith()
+        .status(200)
+        .body(
+          new PactDslJsonBody().array("products")
+        )
+      .toPact();
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProduct", port="9999")
-  void testSingleProduct(MockServer mockServer) throws IOException {
-    Product product = productServiceClient.getProductById(10L);
-    assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
+  @PactTestFor(pactMethod = "noProducts")
+  void testNoProducts(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    ProductServiceResponse products = productServiceClient.fetchProducts();
+    assertThat(products.getProducts(), hasSize(0));
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact singleProductNotExists(PactDslWithProvider builder) {
+    return builder
+      .given("product with ID 10 does not exist", "id", 10)
+      .uponReceiving("get product with ID 10")
+        .path("/product/10")
+      .willRespondWith()
+        .status(404)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "singleProductNotExists")
+  void testSingleProductNotExists(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.getProductById(10L);
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("404 Not Found"));
+    }
   }
 }

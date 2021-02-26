@@ -634,3 +634,173 @@ Verifying a pact between ProductCatalogue and ProductService
 Yay - green ✅!
 
 Move on to [step 6](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step6#step-6---consumer-updates-contract-for-missing-products)
+
+## Step 6 - Consumer updates contract for missing products
+
+We're now going to add 2 more scenarios for the contract
+
+- What happens when we make a call for a product that doesn't exist? We assume we'll get a `404`.
+
+- What happens when we make a call for getting all products but none exist at the moment? We assume a `200` with an empty array.
+
+Let's write a test for these scenarios, and then generate an updated pact file.
+
+In `consumer/src/api.pact.spec.js`:
+
+```java
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact noProducts(PactDslWithProvider builder) {
+    return builder
+      .given("no products exists")
+      .uponReceiving("get all products")
+        .path("/products")
+      .willRespondWith()
+        .status(200)
+        .body(
+          new PactDslJsonBody().array("products")
+        )
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "noProducts")
+  void testNoProducts(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    ProductServiceResponse products = productServiceClient.fetchProducts();
+    assertThat(products.getProducts(), hasSize(0));
+  }
+
+  @Pact(consumer = "ProductCatalogue")
+  public RequestResponsePact singleProductNotExists(PactDslWithProvider builder) {
+    return builder
+      .given("product with ID 10 does not exist", "id", 10)
+      .uponReceiving("get product with ID 10")
+        .path("/product/10")
+      .willRespondWith()
+        .status(404)
+      .toPact();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "singleProductNotExists")
+  void testSingleProductNotExists(MockServer mockServer) {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
+    try {
+      productServiceClient.getProductById(10L);
+      fail("Expected service call to throw an exception");
+    } catch (HttpClientErrorException ex) {
+      assertThat(ex.getMessage(), containsString("404 Not Found"));
+    }
+  }
+```
+
+Notice that our new tests look almost identical to our previous tests, and only differ on the expectations of the 
+_response_ - the HTTP request expectations are exactly the same.
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
+[INFO] Replacing main artifact with repackaged archive
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+What does our provider have to say about this new test. Again, copy the updated pact file into the provider's pact directory and run the command:
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+Verifying a pact between ProductCatalogue and ProductService
+  [Using File pacts/ProductCatalogue-ProductService.json]
+  Given no products exists
+  get all products
+2021-02-26 13:45:27.930  INFO 100121 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-02-26 13:45:27.932  INFO 100121 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2021-02-26 13:45:27.934  INFO 100121 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    returns a response which
+      has status code 200 (OK)
+      has a matching body (FAILED)
+
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get all products has a matching body
+
+    1.1) body: $.products Expected an empty List but received [{"code":"CC_01_VISA","id":9,"name":"Gem Visa","type":"CREDIT_CARD","version":"v1"},{"code":"CC_02_OTH","id":10,"name":"28 Degrees","type":"CREDIT_CARD","version":"v1"},{"code":"LN_PERS_01","id":11,"name":"MyFlexiPay","type":"PERSONAL_LOAN","version":"v2"}]
+
+        [
+        -
+        +  {
+        +    "id": 9,
+        +    "name": "Gem Visa",
+        +    "type": "CREDIT_CARD",
+        +    "version": "v1",
+        +    "code": "CC_01_VISA"
+        +  },
+        +  {
+        +    "id": 10,
+        +    "name": "28 Degrees",
+        +    "type": "CREDIT_CARD",
+        +    "version": "v1",
+        +    "code": "CC_02_OTH"
+        +  },
+        +  {
+        +    "id": 11,
+        +    "name": "MyFlexiPay",
+        +    "type": "PERSONAL_LOAN",
+        +    "version": "v2",
+        +    "code": "LN_PERS_01"
+        +  }
+        ]
+
+
+
+2021-02-26 13:45:28.460  WARN 100121 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   : Not all of the 4 were verified. The following were missing:
+2021-02-26 13:45:28.460  WARN 100121 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   :     get product with ID 10
+2021-02-26 13:45:28.461  WARN 100121 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   :     get product with ID 10
+2021-02-26 13:45:28.461  WARN 100121 --- [           main] a.c.d.p.p.DefaultTestResultAccumulator   :     get all products
+2021-02-26 13:45:28.463  WARN 100121 --- [           main] p.j.PactVerificationStateChangeExtension : Did not find a test class method annotated with @State("no products exists") 
+for Interaction "get all products" 
+with Consumer "ProductCatalogue"
+2021-02-26 13:45:28.530  WARN 100121 --- [           main] p.j.PactVerificationStateChangeExtension : Did not find a test class method annotated with @State("product with ID 10 does not exist") 
+for Interaction "get product with ID 10" 
+with Consumer "ProductCatalogue"
+
+Verifying a pact between ProductCatalogue and ProductService
+  [Using File pacts/ProductCatalogue-ProductService.json]
+  Given product with ID 10 does not exist
+  get product with ID 10
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
+
+Failures:
+
+1) Verifying a pact between ProductCatalogue and ProductService - get product with ID 10: has status code 404
+
+    1.1) status: expected status of 404 but was 200
+
+```
+
+We expected this failure, because the product we are requesting does in fact exist! What we want to test for, 
+is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", 
+and how Pact gets around test ordering and related issues.
+
+We could resolve this by updating our consumer test to use a known non-existent product, but it's worth understanding
+how Provider states work more generally.
+
+*Move on to [step 7](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step7#step-7---adding-the-missing-states)*
