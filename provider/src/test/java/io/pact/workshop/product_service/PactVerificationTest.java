@@ -9,6 +9,7 @@ import au.com.dius.pact.provider.junitsupport.StateChangeAction;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import io.pact.workshop.product_service.products.Product;
 import io.pact.workshop.product_service.products.ProductRepository;
+import org.apache.http.HttpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,8 +40,18 @@ public class PactVerificationTest {
 
   @TestTemplate
   @ExtendWith(PactVerificationInvocationContextProvider.class)
-  void pactVerificationTestTemplate(PactVerificationContext context) {
+  void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
+    // WARNING: Do not modify anything else on the request, because you could invalidate the contract
+    if (request.containsHeader("Authorization")) {
+      request.setHeader("Authorization", "Bearer " + generateToken());
+    }
     context.verifyInteraction();
+  }
+
+  private static String generateToken() {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.putLong(System.currentTimeMillis());
+    return Base64.getEncoder().encodeToString(buffer.array());
   }
 
   @State(value = "products exists", action = StateChangeAction.SETUP)

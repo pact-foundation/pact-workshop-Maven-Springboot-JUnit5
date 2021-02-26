@@ -1122,3 +1122,63 @@ Failures:
 Oh, dear. _More_ tests are failing. Can you understand why?
 
 *Move on to [step 10](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step10#step-10---request-filters-on-the-provider)*
+
+## Step 10 - Request Filters on the Provider
+
+Because our pact file has static data in it, our bearer token is now out of date, so when Pact verification 
+passes it to the Provider we get a `401`. There are multiple ways to resolve this - mocking or stubbing out 
+the authentication component is a common one. In our use case, we are going to use a process referred to as 
+_Request Filtering_, by modifying the request that gets sent.
+
+_NOTE_: This is an advanced concept and should be used carefully, as it has the potential to invalidate a 
+contract by bypassing its constraints. See https://github.com/DiUS/pact-jvm/blob/master/provider/junit/README.md#modifying-the-requests-before-they-are-sent 
+for more details on this.
+
+The approach we are going to take to inject the header is as follows:
+
+1. If we receive any Authorization header, we override the incoming request with a valid (in time) Authorization header, and continue with whatever call was being made
+1. If we don't receive an Authorization header, we do nothing
+
+_NOTE_: We are not considering the `403` scenario in this example.
+
+In `provider/src/test/java/io/pact/workshop/product_service/PactVerificationTest.java`:
+
+```javascript
+  @TestTemplate
+  @ExtendWith(PactVerificationInvocationContextProvider.class)
+  void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
+    // WARNING: Do not modify anything else on the request, because you could invalidate the contract
+    if (request.containsHeader("Authorization")) {
+      request.setHeader("Authorization", "Bearer " + generateToken());
+    }
+    context.verifyInteraction();
+  }
+
+  private static String generateToken() {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.putLong(System.currentTimeMillis());
+    return Base64.getEncoder().encodeToString(buffer.array());
+  }
+```
+
+We can now run the Provider tests
+
+```console
+❯ ./mvnw verify
+
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/product-service-1.0-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+*Move on to [step 11](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker)*
