@@ -1033,6 +1033,7 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     String header = request.getHeader("Authorization");
     if (tokenValid(header)) {
+      SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken("user", header));
       filterChain.doFilter(request, response);
     } else {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
