@@ -934,7 +934,7 @@ We add in `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/Pro
 
 to all the interactions and two new interactions: 
 
-```
+```java
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact noAuthToken(PactDslWithProvider builder) {
     return builder
@@ -1012,7 +1012,7 @@ Failures:
     1.1) status: expected status of 401 but was 200
 ```
 
-Now with the most recently added interactions where we are expecting a response of 401 when no authorization header is sent, 
-we are getting 200...
+Now with the most recently added interactions where we are expecting a response of 401, but the provider is not handling 
+any authentication, so we are getting 200...
 
 Move on to [step 9](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step9#step-9---implement-authorisation-on-the-provider)*
