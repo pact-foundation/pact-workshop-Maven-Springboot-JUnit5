@@ -562,7 +562,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
 
 ![Pact Verification](diagrams/workshop_step5_pact.svg)
 
-Let's run and generate an updated pact file on the client:
+Let's run and generate an updated pact file on the consumer:
 
 ```console
 ❯ ./mvnw verify
