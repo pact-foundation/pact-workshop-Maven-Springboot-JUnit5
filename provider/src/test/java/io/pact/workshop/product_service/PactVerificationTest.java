@@ -2,11 +2,11 @@ package io.pact.workshop.product_service;
 
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
-import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
-import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import io.pact.workshop.product_service.products.Product;
 import io.pact.workshop.product_service.products.ProductRepository;
 import org.apache.http.HttpRequest;
@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Provider("ProductService")
-@PactFolder("pacts")
+@PactBroker
 public class PactVerificationTest {
   @LocalServerPort
   private int port;
@@ -39,7 +39,7 @@ public class PactVerificationTest {
   }
 
   @TestTemplate
-  @ExtendWith(PactVerificationInvocationContextProvider.class)
+  @ExtendWith(PactVerificationSpringProvider.class)
   void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
     // WARNING: Do not modify anything else on the request, because you could invalidate the contract
     if (request.containsHeader("Authorization")) {

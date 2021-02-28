@@ -32,6 +32,7 @@ If running this as a team workshop format, you may want to take a look through t
 
 - JDK 8 or above
 - Maven 3
+- Docker for step 11
 
 ## Scenario
 
@@ -1182,3 +1183,204 @@ We can now run the Provider tests
 ```
 
 *Move on to [step 11](https://github.com/pact-foundation/pact-workshop-Maven-Springboot-JUnit5/tree/step11#step-11---using-a-pact-broker)*
+
+## Step 11 - Using a Pact Broker
+
+![Broker collaboration Workflow](diagrams/workshop_step10_broker.svg)
+
+We've been publishing our pacts from the consumer project by essentially sharing the file system with the 
+provider. But this is not very manageable when you have multiple teams contributing to the code base, and 
+pushing to CI. We can use a [Pact Broker](https://pactflow.io) to do this instead.
+
+Using a broker simplifies the management of pacts and adds a number of useful features, including some safety
+enhancements for continuous delivery which we'll see shortly.
+
+In this workshop we will be using the open source Pact broker.
+
+### Running the Pact Broker with docker-compose
+
+In the root directory, run:
+
+```console
+docker-compose up
+```
+
+### Publish contracts from consumer
+
+First, in the consumer project we need to tell Pact about our broker. We will use the Pact Maven plugin to
+manage this. 
+
+In `consumer/pom.xml`:
+
+```xml
+<build>
+  <plugins>
+      ...
+      <plugin>
+          <groupId>au.com.dius.pact.provider</groupId>
+          <artifactId>maven</artifactId>
+          <version>4.1.17</version>
+          <configuration>
+            <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+            <pactBrokerUsername>USERNAME</pactBrokerUsername>
+            <pactBrokerPassword>PASSWORD</pactBrokerPassword>
+          </configuration>
+      </plugin>
+  </plugins>
+</build>
+```
+
+And now we can run:
+
+```console
+❯ ./mvnw pact:publish
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
+[INFO] Building product-catalogue 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.1.17:publish (default-cli) @ product-catalogue ---
+Publishing 'ProductCatalogue-ProductService.json' with tags 'prod, test' ... OK
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.745 s
+[INFO] Finished at: 2021-03-01T09:51:29+11:00
+[INFO] ------------------------------------------------------------------------
+```
+
+Have a browse around the broker on http://localhost:9292 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
+
+### Verify contracts on Provider
+
+All we need to do for the provider is update the test where it finds its pacts, from local URLs, to one from a broker.
+We add a `@PactBroker` annotation to our test and change it to use the `PactVerificationSpringProvider`, 
+and then create a test application YAML configuration file with the details of the Pact Broker.
+
+In `provider/src/test/java/io/pact/workshop/product_service/PactVerificationTest.java`:
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Provider("ProductService")
+@PactBroker // <--
+public class PactVerificationTest {
+  @LocalServerPort
+  private int port;
+
+  @Autowired
+  private ProductRepository productRepository;
+
+  @BeforeEach
+  void setup(PactVerificationContext context) {
+    context.setTarget(new HttpTestTarget("localhost", port));
+  }
+
+  @TestTemplate
+  @ExtendWith(PactVerificationSpringProvider.class) // <--
+  void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
+    // WARNING: Do not modify anything else on the request, because you could invalidate the contract
+    if (request.containsHeader("Authorization")) {
+      request.setHeader("Authorization", "Bearer " + generateToken());
+    }
+    context.verifyInteraction();
+  }  
+
+```
+
+and then create `provider/src/test/resources/application.yml`:
+
+```yaml
+pactbroker:
+  host: localhost
+  port: "9292"
+  auth:
+    username: pact_workshop
+    password: pact_workshop
+```
+
+Let's run the provider verification one last time after this change:
+
+```console
+❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT
+
+<<< Omitted >>>
+
+Verifying a pact between ProductCatalogue (0.0.1-SNAPSHOT) and ProductService
+
+  Notices:
+    1) The pact at http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a is being verified because it matches the following configured selection criterion: latest pact between a consumer and ProductService
+
+  [from Pact Broker http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a/metadata/c1tdW2xdPXRydWUmc1tdW2N2bl09MC4wLjEtU05BUFNIT1Q=]
+  get all products with no auth token
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+      
+<<< Omitted >>>
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+As part of this process, the results of the verification - the outcome (boolean) and the detailed information 
+about the failures at the interaction level - are published to the Broker also.
+
+This is one of the Broker's more powerful features. Referred to as [Verifications](https://docs.pact.io/pact_broker/advanced_topics/provider_verification_results), 
+it allows providers to report back the status of a verification to the broker. You'll get a quick view of the 
+status of each consumer and provider on a nice dashboard. But it is much more important than this!
+
+### Can I deploy?
+
+With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/advanced_topics/provider_verification_results) - 
+the Broker will determine if a consumer or provider is safe to release to the specified environment.
+
+You can run the `can-i-deploy` checks as follows:
+
+```console
+❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -Dlatest=true
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< io.pact.workshop:product-service >------------------
+[INFO] Building product-service 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.1.17:can-i-deploy (default-cli) @ product-service ---
+Computer says yes \o/ 
+
+All required verification results are published and successful
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+
+
+❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< io.pact.workshop:product-service >------------------
+[INFO] Building product-service 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven:4.1.17:can-i-deploy (default-cli) @ product-service ---
+Computer says yes \o/ 
+
+All required verification results are published and successful
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+
+
+That's it - you're now a Pact pro. Go build 🔨

@@ -82,4 +82,28 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>4.1.17</version>
+                <configuration>
+                    <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+                    <pactBrokerUsername>pact_workshop</pactBrokerUsername>
+                    <pactBrokerPassword>pact_workshop</pactBrokerPassword>
+                    <tags>
+                        <tag>prod</tag>
+                        <tag>test</tag>
+                    </tags>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
