@@ -1222,8 +1222,8 @@ In `consumer/pom.xml`:
           <version>4.1.17</version>
           <configuration>
             <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
-            <pactBrokerUsername>USERNAME</pactBrokerUsername>
-            <pactBrokerPassword>PASSWORD</pactBrokerPassword>
+            <pactBrokerUsername>pact_workshop</pactBrokerUsername>
+            <pactBrokerPassword>pact_workshop</pactBrokerPassword>
           </configuration>
       </plugin>
   </plugins>
