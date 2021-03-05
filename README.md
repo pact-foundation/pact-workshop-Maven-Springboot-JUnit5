@@ -1154,7 +1154,7 @@ _NOTE_: We are not considering the `403` scenario in this example.
 
 In `provider/src/test/java/io/pact/workshop/product_service/PactVerificationTest.java`:
 
-```javascript
+```java
   @TestTemplate
   @ExtendWith(PactVerificationInvocationContextProvider.class)
   void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
@@ -1175,7 +1175,7 @@ In `provider/src/test/java/io/pact/workshop/product_service/PactVerificationTest
 We can now run the Provider tests
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
