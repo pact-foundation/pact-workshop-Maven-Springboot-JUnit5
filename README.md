@@ -1070,7 +1070,7 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
 Let's test this out:
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
