@@ -1212,7 +1212,7 @@ In this workshop we will be using the open source Pact broker.
 In the root directory, run:
 
 ```console
-docker-compose up
+ ❯ docker-compose up
 ```
 
 ### Publish contracts from consumer
@@ -1243,7 +1243,7 @@ In `consumer/pom.xml`:
 And now we can run:
 
 ```console
-❯ ./mvnw pact:publish
+consumer ❯ ./mvnw pact:publish
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
@@ -1312,7 +1312,7 @@ pactbroker:
 Let's run the provider verification one last time after this change:
 
 ```console
-❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT
+provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT
 
 <<< Omitted >>>
 
@@ -1359,7 +1359,7 @@ the Broker will determine if a consumer or provider is safe to release to the sp
 You can run the `can-i-deploy` checks as follows:
 
 ```console
-❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -Dlatest=true
+consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -Dlatest=true
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ------------------< io.pact.workshop:product-service >------------------
@@ -1375,7 +1375,7 @@ All required verification results are published and successful
 [INFO] ------------------------------------------------------------------------
 
 
-❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
+consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ------------------< io.pact.workshop:product-service >------------------
