@@ -77,8 +77,14 @@ public class ProductServiceClient {
 }
 ```
 
-After forking or cloning the repository, we need to build the app and install the dependencies with `./mvnw verify`.
-We can run the app with `java -jar target/product-catalogue-0.0.1-SNAPSHOT.jar`.
+After forking or cloning the repository, we need to build the app and install the dependencies. Run the following
+in the `consumer` sub-directory:
+
+```console
+/consumer ❯ ./mvnw verify
+```
+
+We can run the app with `/consumer ❯ java -jar target/product-catalogue-0.0.1-SNAPSHOT.jar`.
 
 Accessing the URL for the app in the browser gives us a 500 error page as the downstream service is not running. 
 You will also see an exception in the Springboot console output.
