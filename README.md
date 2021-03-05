@@ -31,7 +31,7 @@ If running this as a team workshop format, you may want to take a look through t
 ## Requirements
 
 - JDK 8 or above
-- Maven
+- Maven 3
 - Docker for step 11
 
 ## Scenario
