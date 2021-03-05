@@ -139,7 +139,7 @@ You can see the client interface test we created in `consumer/src/test/java/io/p
 Let's run this test and see it all pass:
 
 ```console
-❯ ./mvnw verify
+consumer ❯ ./mvnw verify
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
@@ -200,7 +200,7 @@ Meanwhile, our provider team has started building out their API in parallel. Let
 
 ```console
 # Terminal 1
-❯ mvn spring-boot:run
+consumer ❯ mvn spring-boot:run
 
 <<< Omitted >>>
 
@@ -227,7 +227,7 @@ Meanwhile, our provider team has started building out their API in parallel. Let
 
 ```console
 # Terminal 2
->  mvn spring-boot:run
+provider ❯  mvn spring-boot:run
 
 <<< Omitted >>>
 
