@@ -698,7 +698,7 @@ Notice that our new tests look almost identical to our previous tests, and only 
 _response_ - the HTTP request expectations are exactly the same.
 
 ```console
-❯ ./mvnw verify
+consumer ❯ ./mvnw verify
 
 <<< Omitted >>>
 
@@ -721,7 +721,7 @@ _response_ - the HTTP request expectations are exactly the same.
 What does our provider have to say about this new test. Again, copy the updated pact file into the provider's pact directory and run the command:
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
