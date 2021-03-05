@@ -867,7 +867,7 @@ Let's open up our provider Pact verification test in `provider/src/test/java/io/
 Let's see how we go now:
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
