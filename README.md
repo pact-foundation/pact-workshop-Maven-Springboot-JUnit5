@@ -565,7 +565,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
 Let's run and generate an updated pact file on the consumer:
 
 ```console
-❯ ./mvnw verify
+consumer ❯ ./mvnw verify
 
 <<< Omitted >>>
 
@@ -592,7 +592,7 @@ Copy the updated contract located in `consumer/target/pacts/ProductCatalogue-Pro
 Run the command:
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
