@@ -383,7 +383,7 @@ Running this test also passes, but it creates a pact file which we can use to va
 provider side, and have conversation around.
 
 ```console
-❯ ./mvnw verify
+consumer ❯ ./mvnw verify
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
