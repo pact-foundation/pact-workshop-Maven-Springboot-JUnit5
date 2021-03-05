@@ -1375,7 +1375,7 @@ All required verification results are published and successful
 [INFO] ------------------------------------------------------------------------
 
 
-consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
+provider ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ------------------< io.pact.workshop:product-service >------------------
