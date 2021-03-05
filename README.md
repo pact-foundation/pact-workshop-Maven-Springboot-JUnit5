@@ -996,7 +996,7 @@ Then re-run the Pact test to generate a new Pact file.
 Let's test the provider. Copy the updated pact file into the provider's pact directory and run the tests:
 
 ```console
-❯ ./mvnw verify
+provider ❯ ./mvnw verify
 
 <<< Omitted >>>
 
