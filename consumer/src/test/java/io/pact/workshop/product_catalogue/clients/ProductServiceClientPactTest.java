@@ -79,6 +79,7 @@ class ProductServiceClientPactTest {
   @Test
   @PactTestFor(pactMethod = "singleProduct", port="9999")
   void testSingleProduct(MockServer mockServer) throws IOException {
+    productServiceClient.setBaseUrl(mockServer.getUrl());
     Product product = productServiceClient.getProductById(10L);
     assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
   }
