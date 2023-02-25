@@ -1,27 +1,27 @@
-version: "3"
-
+version: "3.8"
 services:
-  postgres:
-    image: postgres
+  db:
+    image: postgres:12.10
     healthcheck:
-      test: psql postgres --command "select 1" -U postgres
+      test: psql postgres --command "select 1" -U pact-broker
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
-
-  broker_app:
-    image: pactfoundation/pact-broker
-    links:
-      - postgres
-    ports:
-      - 9292:9292
+      POSTGRES_USER: pact-broker
+      POSTGRES_PASSWORD: the-pwd
+      POSTGRES_DB: broker
+    restart: unless-stopped
+  broker:
+    image: dius/pact-broker:2.95.0.0
+    depends_on:
+      - db
     environment:
       PACT_BROKER_BASIC_AUTH_USERNAME: pact_workshop
       PACT_BROKER_BASIC_AUTH_PASSWORD: pact_workshop
-      PACT_BROKER_DATABASE_USERNAME: postgres
-      PACT_BROKER_DATABASE_PASSWORD: password
-      PACT_BROKER_DATABASE_HOST: postgres
-      PACT_BROKER_DATABASE_NAME: postgres
+      PACT_BROKER_DATABASE_USERNAME: pact-broker
+      PACT_BROKER_DATABASE_PASSWORD: the-pwd
+      PACT_BROKER_DATABASE_HOST: db
+      PACT_BROKER_DATABASE_NAME: broker
+    ports:
+      - "9292:80"
+    restart: unless-stopped
