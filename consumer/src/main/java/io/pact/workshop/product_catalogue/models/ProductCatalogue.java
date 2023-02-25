@@ -1,8 +1,7 @@
 package io.pact.workshop.product_catalogue.models;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class ProductCatalogue {

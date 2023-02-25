@@ -2,30 +2,36 @@ package io.pact.workshop.product_service.controllers;
 
 import io.pact.workshop.product_service.products.Product;
 import io.pact.workshop.product_service.products.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
 public class ProductsController {
-  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "product not found")
-  public static class ProductNotFoundException extends RuntimeException { }
 
-  @Autowired
-  private ProductRepository productRepository;
+  private final ProductRepository productRepository;
 
   @GetMapping("/products")
   public ProductsResponse allProducts() {
-    return new ProductsResponse((List<Product>) productRepository.findAll());
+    final ProductsResponse allProducts =
+        new ProductsResponse((List<Product>) productRepository.findAll());
+    return allProducts;
   }
 
   @GetMapping("/product/{id}")
   public Product productById(@PathVariable("id") Long id) {
-    return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    final Product product =
+        productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    return product;
+  }
+
+  @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "product not found")
+  public static class ProductNotFoundException extends RuntimeException {
+    private static final long serialVersionUID = -1658284135693252129L;
   }
 }

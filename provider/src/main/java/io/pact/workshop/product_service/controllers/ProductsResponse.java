@@ -1,9 +1,8 @@
 package io.pact.workshop.product_service.controllers;
 
 import io.pact.workshop.product_service.products.Product;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class ProductsResponse {

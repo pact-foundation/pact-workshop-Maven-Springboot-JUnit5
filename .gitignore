@@ -89,3 +89,5 @@ component-test/*.xml
 
 #Meld
 *.orig
+
+.attach_pid*
