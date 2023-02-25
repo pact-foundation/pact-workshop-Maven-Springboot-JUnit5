@@ -15,7 +15,6 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import io.pact.workshop.product_catalogue.models.Product;
-import java.util.List;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +25,12 @@ import org.springframework.web.client.HttpClientErrorException;
 @SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(providerName = "ProductService")
-class ProductServiceClientPactTest extends BaseTest {
+class ProductServiceClientPactTests extends BaseTests {
   @Autowired private ProductServiceClient productServiceClient;
 
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact allProducts(PactDslWithProvider builder) {
-    final List<Product> productsWithAllVersions = getProducts().getProducts();
+    final var productsWithAllVersions = getProducts().getProducts();
 
     return builder
         .given("products exists")
@@ -55,10 +54,8 @@ class ProductServiceClientPactTest extends BaseTest {
   @PactTestFor(pactMethod = "allProducts")
   void testAllProducts(MockServer mockServer) throws IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
-
-    final List<Product> productsWithAllVersions = getProducts().getProducts();
-
-    List<Product> products = productServiceClient.fetchProducts().getProducts();
+    final var productsWithAllVersions = getProducts().getProducts();
+    final var products = productServiceClient.fetchProducts().getProducts();
 
     assertThat(products, hasSize(productsWithAllVersions.size()));
     assertThat(
@@ -75,7 +72,7 @@ class ProductServiceClientPactTest extends BaseTest {
 
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact singleProduct(PactDslWithProvider builder) {
-    final Product productWithV1 = getProductWithV1Version();
+    final var productWithV1 = getProductWithV1Version();
 
     return builder
         .given(
@@ -101,10 +98,9 @@ class ProductServiceClientPactTest extends BaseTest {
   @PactTestFor(pactMethod = "singleProduct")
   void testSingleProduct(MockServer mockServer) throws IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
+    final var productWithV1 = getProductWithV1Version();
+    final var product = productServiceClient.getProductById(productWithV1.getId());
 
-    final Product productWithV1 = getProductWithV1Version();
-
-    Product product = productServiceClient.getProductById(productWithV1.getId());
     assertThat(
         product,
         is(
@@ -134,13 +130,14 @@ class ProductServiceClientPactTest extends BaseTest {
   @PactTestFor(pactMethod = "noProducts")
   void testNoProducts(MockServer mockServer) throws IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
-    ProductServiceResponse products = productServiceClient.fetchProducts();
+    final var products = productServiceClient.fetchProducts();
+
     assertThat(products.getProducts(), hasSize(0));
   }
 
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact singleProductNotExists(PactDslWithProvider builder) {
-    final Product productWithV1 = getProductWithV1Version();
+    final var productWithV1 = getProductWithV1Version();
 
     return builder
         .given(
@@ -158,9 +155,9 @@ class ProductServiceClientPactTest extends BaseTest {
   @Test
   @PactTestFor(pactMethod = "singleProductNotExists")
   void testSingleProductNotExists(MockServer mockServer) throws IllegalAccessException {
-    final Product productWithV1 = getProductWithV1Version();
-
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
+    final var productWithV1 = getProductWithV1Version();
+
     try {
       productServiceClient.getProductById(productWithV1.getId());
       fail("Expected service call to throw an exception");
@@ -183,6 +180,7 @@ class ProductServiceClientPactTest extends BaseTest {
   @PactTestFor(pactMethod = "noAuthToken")
   void testNoAuthToken(MockServer mockServer) throws IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
+
     try {
       productServiceClient.fetchProducts();
       fail("Expected service call to throw an exception");
@@ -193,7 +191,8 @@ class ProductServiceClientPactTest extends BaseTest {
 
   @Pact(consumer = "ProductCatalogue")
   public RequestResponsePact noAuthToken2(PactDslWithProvider builder) {
-    final Product productWithV1 = getProductWithV1Version();
+    final var productWithV1 = getProductWithV1Version();
+
     return builder
         .uponReceiving("get product by ID with no auth token")
         .path("/product/" + productWithV1.getId())
@@ -206,8 +205,8 @@ class ProductServiceClientPactTest extends BaseTest {
   @PactTestFor(pactMethod = "noAuthToken2")
   void testNoAuthToken2(MockServer mockServer) throws IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", mockServer.getUrl(), true);
+    final var productWithV1 = getProductWithV1Version();
 
-    final Product productWithV1 = getProductWithV1Version();
     try {
       productServiceClient.getProductById(productWithV1.getId());
       fail("Expected service call to throw an exception");

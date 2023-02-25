@@ -3,7 +3,7 @@ package io.pact.workshop.product_catalogue.clients;
 import io.pact.workshop.product_catalogue.models.Product;
 import java.util.List;
 
-public abstract class BaseTest {
+public abstract class BaseTests {
 
   protected static ProductServiceResponse getProducts() {
     return new ProductServiceResponse(

@@ -15,7 +15,7 @@ public class ProductCatalogueController {
 
   @GetMapping("/catalogue")
   public String catalogue(Model model) {
-    ProductCatalogue catalogue =
+    final var catalogue =
         new ProductCatalogue(
             "Default Catalogue", productServiceClient.fetchProducts().getProducts());
     model.addAttribute("catalogue", catalogue);

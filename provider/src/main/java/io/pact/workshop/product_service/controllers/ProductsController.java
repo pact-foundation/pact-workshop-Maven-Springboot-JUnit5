@@ -18,15 +18,13 @@ public class ProductsController {
 
   @GetMapping("/products")
   public ProductsResponse allProducts() {
-    final ProductsResponse allProducts =
-        new ProductsResponse((List<Product>) productRepository.findAll());
+    final var allProducts = new ProductsResponse((List<Product>) productRepository.findAll());
     return allProducts;
   }
 
   @GetMapping("/product/{id}")
   public Product productById(@PathVariable("id") Long id) {
-    final Product product =
-        productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    final var product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     return product;
   }
 

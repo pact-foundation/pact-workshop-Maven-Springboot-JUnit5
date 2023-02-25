@@ -28,11 +28,11 @@ public class ProductServiceClient {
   }
 
   private <T> T callApi(String path, Class<T> responseType) {
-    HttpHeaders headers = new HttpHeaders();
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    final var headers = new HttpHeaders();
+    final var buffer = ByteBuffer.allocate(Long.BYTES);
     buffer.putLong(System.currentTimeMillis());
     headers.setBearerAuth(Base64.getEncoder().encodeToString(buffer.array()));
-    HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+    final var requestEntity = new HttpEntity<>(headers);
     return restTemplate
         .exchange(baseUrl + path, HttpMethod.GET, requestEntity, responseType)
         .getBody();

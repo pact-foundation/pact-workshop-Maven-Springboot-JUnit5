@@ -14,7 +14,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.pact.workshop.product_catalogue.models.Product;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ import ru.lanwen.wiremock.ext.WiremockUriResolver.WiremockUri;
 
 @SpringBootTest
 @ExtendWith({WiremockResolver.class, WiremockUriResolver.class})
-class ProductServiceClientTest extends BaseTest {
+class ProductServiceClientTests extends BaseTests {
   @Autowired private ProductServiceClient productServiceClient;
   @Autowired private ObjectMapper objectMapper;
 
@@ -36,8 +35,9 @@ class ProductServiceClientTest extends BaseTest {
   void fetchProducts(@Wiremock WireMockServer server, @WiremockUri String uri)
       throws JsonProcessingException, IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", uri, true);
-    final ProductServiceResponse allProducts = getProducts();
-    final String jsonProducts = objectMapper.writeValueAsString(allProducts);
+    final var allProducts = getProducts();
+    final var jsonProducts = objectMapper.writeValueAsString(allProducts);
+
     server.stubFor(
         get(urlPathEqualTo("/products"))
             .willReturn(
@@ -46,8 +46,9 @@ class ProductServiceClientTest extends BaseTest {
                     .withBody(jsonProducts)
                     .withHeader("Content-Type", "application/json")));
 
-    final List<Product> productsWithAllVersions = allProducts.getProducts();
-    ProductServiceResponse response = productServiceClient.fetchProducts();
+    final var productsWithAllVersions = allProducts.getProducts();
+    final var response = productServiceClient.fetchProducts();
+
     assertThat(response.getProducts(), hasSize(productsWithAllVersions.size()));
     assertThat(
         response.getProducts().stream().map(Product::getId).collect(Collectors.toSet()),
@@ -63,8 +64,9 @@ class ProductServiceClientTest extends BaseTest {
   void getProductById(@Wiremock WireMockServer server, @WiremockUri String uri)
       throws JsonProcessingException, IllegalAccessException {
     FieldUtils.writeField(productServiceClient, "baseUrl", uri, true);
-    final Product productWithV1 = getProductWithV1Version();
-    final String jsonProduct = objectMapper.writeValueAsString(productWithV1);
+    final var productWithV1 = getProductWithV1Version();
+    final var jsonProduct = objectMapper.writeValueAsString(productWithV1);
+
     server.stubFor(
         get(urlPathEqualTo("/product/" + productWithV1.getId()))
             .willReturn(
@@ -73,7 +75,8 @@ class ProductServiceClientTest extends BaseTest {
                     .withBody(jsonProduct)
                     .withHeader("Content-Type", "application/json")));
 
-    Product product = productServiceClient.getProductById(productWithV1.getId());
+    final var product = productServiceClient.getProductById(productWithV1.getId());
+
     assertThat(
         product,
         is(

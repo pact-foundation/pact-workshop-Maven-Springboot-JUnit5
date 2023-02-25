@@ -1,5 +1,7 @@
 package io.pact.workshop.product_service.config;
 
+import static java.util.regex.Pattern.matches;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Base64;
@@ -20,8 +22,10 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    String header = request.getHeader("Authorization");
-    if (tokenValid(header)) {
+    final var header = request.getHeader("Authorization");
+    if (noVerifyAuthorizationHeader(request.getRequestURI())) {
+      filterChain.doFilter(request, response);
+    } else if (tokenValid(header)) {
       SecurityContextHolder.getContext()
           .setAuthentication(new PreAuthenticatedAuthenticationToken("user", header));
       filterChain.doFilter(request, response);
@@ -31,15 +35,19 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
   }
 
   private boolean tokenValid(String header) {
-    boolean hasBearerToken = StringUtils.isNotEmpty(header) && header.startsWith("Bearer ");
+    final var hasBearerToken = StringUtils.isNotEmpty(header) && header.startsWith("Bearer ");
     if (hasBearerToken) {
-      String token = header.substring("Bearer ".length());
-      ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+      final var token = header.substring("Bearer ".length());
+      final var buffer = ByteBuffer.allocate(Long.BYTES);
       buffer.put(Base64.getDecoder().decode(token));
       buffer.flip();
-      long timestamp = buffer.getLong();
+      final var timestamp = buffer.getLong();
       return System.currentTimeMillis() - timestamp <= ONE_HOUR;
     }
     return false;
+  }
+
+  private static boolean noVerifyAuthorizationHeader(final String uri) {
+    return matches("^\\/h2-console.*|.*(.ico)$", uri);
   }
 }
