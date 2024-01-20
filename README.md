@@ -1312,7 +1312,7 @@ pactbroker:
 Let's run the provider verification one last time after this change:
 
 ```console
-provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT
+provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT -Dpact.provider.branch=test
 
 <<< Omitted >>>
 

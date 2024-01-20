@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
+			<version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
 
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>au.com.dius.pact.provider</groupId>
             <artifactId>junit5spring</artifactId>
-            <version>4.1.17</version>
+            <version>4.1.33</version>
             <scope>test</scope>
         </dependency>
 
@@ -92,15 +92,12 @@
             <plugin>
                 <groupId>au.com.dius.pact.provider</groupId>
                 <artifactId>maven</artifactId>
-                <version>4.1.17</version>
+                <version>4.1.33</version>
                 <configuration>
                     <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
                     <pactBrokerUsername>pact_workshop</pactBrokerUsername>
                     <pactBrokerPassword>pact_workshop</pactBrokerPassword>
-                    <tags>
-                        <tag>prod</tag>
-                        <tag>test</tag>
-                    </tags>
+					<branchName>test</branchName>
                 </configuration>
             </plugin>
         </plugins>
