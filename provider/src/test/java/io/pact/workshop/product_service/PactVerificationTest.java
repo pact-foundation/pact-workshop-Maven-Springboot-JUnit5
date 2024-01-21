@@ -6,10 +6,11 @@ import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import io.pact.workshop.product_service.products.Product;
 import io.pact.workshop.product_service.products.ProductRepository;
-import org.apache.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,15 @@ public class PactVerificationTest {
   void setup(PactVerificationContext context) {
     context.setTarget(new HttpTestTarget("localhost", port));
   }
+
+  @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+      // Select Pacts for consumers deployed to production with branch from CI build 
+      return new SelectorBuilder()
+        .deployedOrReleased()
+        .mainBranch()
+        .branch("test");
+    }
 
   @TestTemplate
   @ExtendWith(PactVerificationSpringProvider.class)
