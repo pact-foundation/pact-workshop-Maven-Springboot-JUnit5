@@ -34,9 +34,9 @@ jobs:
               run:  docker-compose up -d
 
             - name: Consumer - Publish Pact contracts
-              run: ./mvnw pact:publish
+              run: ./mvnw pact:publish -Dpact.publish.consumer.version=$(git rev-parse HEAD) -Dpact.publish.consumer.branchName=$(git rev-parse --abbrev-ref HEAD)
               working-directory: consumer
 
             - name: Provider - Pact verification
-              run: ./mvnw verify
+              run: ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=$(git rev-parse HEAD) -Dpact.provider.branch=$(git rev-parse --abbrev-ref HEAD)
               working-directory: provider
