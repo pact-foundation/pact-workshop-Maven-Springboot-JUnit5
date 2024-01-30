@@ -1,0 +1,29 @@
+name: Maven CI
+
+on:
+    push:
+        branches:
+            - step3
+    pull_request:
+        branches:
+            - step3
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up JDK
+              uses: actions/setup-java@v2
+              with:
+                  java-version: '17'
+                  distribution: 'temurin'
+
+            - name: Consumer - Pact tests
+              run: ./mvnw verify
+              working-directory: consumer
+
+            - name: Consumer - Show pact file
+              run: cat consumer/target/pacts/ProductCatalogue-ProductService.json
