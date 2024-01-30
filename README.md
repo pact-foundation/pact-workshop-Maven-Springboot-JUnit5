@@ -30,8 +30,8 @@ If running this as a team workshop format, you may want to take a look through t
 
 ## Requirements
 
-- JDK 8 or above
-- Maven 3
+- JDK 17+
+- Maven 3+
 - Docker for step 11
 
 ## Scenario
@@ -71,7 +71,7 @@ public class ProductServiceClient {
     return restTemplate.getForObject(baseUrl + "/products", ProductServiceResponse.class);
   }
 
-  public Product fetchProductById(long id) {
+  public Product getProductById(long id) {
     return restTemplate.getForObject(baseUrl + "/products/" + id, Product.class);
   }
 }

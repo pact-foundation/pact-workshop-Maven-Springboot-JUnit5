@@ -68,13 +68,13 @@
                          style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 156px; height: 1px; padding-top: 85px; margin-left: 102px;">
                         <div style="box-sizing: border-box; text-align: center; ">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; background-color: #ffffff; white-space: normal; word-wrap: normal; ">
-                                productServiceClient.fetchProductById(10)
+                                productServiceClient.getProductById(10)
                             </div>
                         </div>
                     </div>
                 </foreignObject>
                 <text x="180" y="89" fill="#000000" font-family="Helvetica" font-size="12px" text-anchor="middle"
-                      font-weight="bold">productServiceClient.fetchProductById(10)
+                      font-weight="bold">productServiceClient.getProductById(10)
                 </text>
             </switch>
         </g>

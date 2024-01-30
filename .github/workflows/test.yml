@@ -1,0 +1,26 @@
+name: Maven CI
+
+on:
+    push:
+        branches:
+            - step1
+    pull_request:
+        branches:
+            - step1
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up JDK
+              uses: actions/setup-java@v2
+              with:
+                  java-version: '17'
+                  distribution: 'temurin'
+
+            - name: Consumer - Check build
+              run: ./mvnw verify
+              working-directory: consumer
