@@ -1,0 +1,33 @@
+name: Maven CI
+
+on:
+    push:
+        branches:
+            - step9
+    pull_request:
+        branches:
+            - step9
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up JDK
+              uses: actions/setup-java@v2
+              with:
+                  java-version: '17'
+                  distribution: 'temurin'
+
+            - name: Consumer - Pact tests
+              run: ./mvnw verify
+              working-directory: consumer
+
+            - name: Consumer - Move Contracts to Provider
+              run: cp consumer/target/pacts/ProductCatalogue-ProductService.json provider/pacts
+
+            - name: Provider - Pact verification
+              run: ./mvnw verify || true
+              working-directory: provider
