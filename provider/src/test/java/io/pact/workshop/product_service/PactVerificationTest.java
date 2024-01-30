@@ -6,16 +6,17 @@ import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import io.pact.workshop.product_service.products.Product;
 import io.pact.workshop.product_service.products.ProductRepository;
-import org.apache.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -37,6 +38,16 @@ public class PactVerificationTest {
   void setup(PactVerificationContext context) {
     context.setTarget(new HttpTestTarget("localhost", port));
   }
+
+  @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+      // Select Pacts for consumers deployed or released to production, those on the main branch
+      // and those on a named branch step11, for use in our workshop
+      return new SelectorBuilder()
+        .deployedOrReleased()
+        .mainBranch()
+        .branch("step11");
+    }
 
   @TestTemplate
   @ExtendWith(PactVerificationSpringProvider.class)

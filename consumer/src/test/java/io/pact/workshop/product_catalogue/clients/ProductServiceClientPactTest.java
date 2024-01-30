@@ -7,6 +7,7 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import au.com.dius.pact.core.model.PactSpecVersion; // required for v4.6.x to set pactVersion
 import io.pact.workshop.product_catalogue.models.Product;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,7 +53,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "allProducts")
+  @PactTestFor(pactMethod = "allProducts", pactVersion = PactSpecVersion.V3)
   void testAllProducts(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     List<Product> products = productServiceClient.fetchProducts().getProducts();
@@ -82,7 +82,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProduct")
+  @PactTestFor(pactMethod = "singleProduct", pactVersion = PactSpecVersion.V3)
   void testSingleProduct(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     Product product = productServiceClient.getProductById(10L);
@@ -105,7 +105,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "noProducts")
+  @PactTestFor(pactMethod = "noProducts", pactVersion = PactSpecVersion.V3)
   void testNoProducts(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     ProductServiceResponse products = productServiceClient.fetchProducts();
@@ -125,7 +125,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProductNotExists")
+  @PactTestFor(pactMethod = "singleProductNotExists", pactVersion = PactSpecVersion.V3)
   void testSingleProductNotExists(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -147,7 +147,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken")
+  @PactTestFor(pactMethod = "noAuthToken", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -169,7 +169,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken2")
+  @PactTestFor(pactMethod = "noAuthToken2", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken2(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {

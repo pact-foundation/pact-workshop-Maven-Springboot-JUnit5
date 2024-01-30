@@ -1,0 +1,42 @@
+name: Maven CI
+
+on:
+    push:
+        branches:
+            - step11
+    pull_request:
+        branches:
+            - step11
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up JDK
+              uses: actions/setup-java@v2
+              with:
+                  java-version: '17'
+                  distribution: 'temurin'
+
+            - name: Consumer - Pact tests
+              run: ./mvnw verify
+              working-directory: consumer
+              
+            - uses: KengoTODA/actions-setup-docker-compose@v1
+              if: ${{ env.ACT }}
+              name: Install `docker-compose` for use with act
+              with:
+                version: '2.24.1'      
+            - name: Start Pact Broker
+              run:  docker-compose up -d
+
+            - name: Consumer - Publish Pact contracts
+              run: ./mvnw pact:publish -Dpact.publish.consumer.version=$(git rev-parse HEAD) -Dpact.publish.consumer.branchName=$(git rev-parse --abbrev-ref HEAD)
+              working-directory: consumer
+
+            - name: Provider - Pact verification
+              run: ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=$(git rev-parse HEAD) -Dpact.provider.branch=$(git rev-parse --abbrev-ref HEAD)
+              working-directory: provider
