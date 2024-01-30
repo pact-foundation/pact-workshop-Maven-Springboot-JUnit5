@@ -3,11 +3,10 @@ name: Maven CI
 on:
     push:
         branches:
-            - main
-            - dep_update
+            - step11
     pull_request:
         branches:
-            - main
+            - step11
 
 jobs:
     build:
