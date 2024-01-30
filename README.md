@@ -30,8 +30,8 @@ If running this as a team workshop format, you may want to take a look through t
 
 ## Requirements
 
-- JDK 8 or above
-- Maven 3
+- JDK 17+
+- Maven 3+
 - Docker for step 11
 
 ## Scenario
@@ -126,7 +126,8 @@ You can see the client interface test we created in `consumer/src/test/java/io/p
       );
     
       Product product = productServiceClient.getProductById(10);
-      assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1"))));
+      assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", null))));
+
   }
 ```
 
@@ -146,7 +147,7 @@ consumer ❯ ./mvnw verify
 [INFO] Building product-catalogue 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:resources (default-resources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] Copying 1 resource
@@ -155,7 +156,7 @@ consumer ❯ ./mvnw verify
 [INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ product-catalogue ---
 [INFO] Nothing to compile - all classes are up to date
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:testResources (default-testResources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] skip non existing resourceDirectory /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/src/test/resources
@@ -181,7 +182,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
 [INFO] Replacing main artifact with repackaged archive
@@ -356,7 +357,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "allProducts", port="9999")
+  @PactTestFor(pactMethod = "allProducts", pactVersion = PactSpecVersion.V3)
   void testAllProducts(MockServer mockServer) throws IOException {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     List<Product> products = productServiceClient.fetchProducts().getProducts();
@@ -365,7 +366,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProduct", port="9999")
+  @PactTestFor(pactMethod = "singleProduct", pactVersion = PactSpecVersion.V3)
   void testSingleProduct(MockServer mockServer) throws IOException {
     Product product = productServiceClient.getProductById(10L);
     assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
@@ -390,7 +391,7 @@ consumer ❯ ./mvnw verify
 [INFO] Building product-catalogue 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:resources (default-resources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] Copying 1 resource
@@ -399,7 +400,7 @@ consumer ❯ ./mvnw verify
 [INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ product-catalogue ---
 [INFO] Nothing to compile - all classes are up to date
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:testResources (default-testResources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] skip non existing resourceDirectory /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/src/test/resources
@@ -422,7 +423,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -575,7 +576,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -663,7 +664,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
   }
 
   @Test
-  @PactTestFor(pactMethod = "noProducts")
+  @PactTestFor(pactMethod = "noProducts", pactVersion = PactSpecVersion.V3)
   void testNoProducts(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     ProductServiceResponse products = productServiceClient.fetchProducts();
@@ -682,7 +683,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProductNotExists")
+  @PactTestFor(pactMethod = "singleProductNotExists", pactVersion = PactSpecVersion.V3)
   void testSingleProductNotExists(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -708,7 +709,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -877,7 +878,7 @@ provider ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-service ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/product-service-1.0-SNAPSHOT.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
@@ -957,7 +958,7 @@ to all the interactions and two new interactions:
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken")
+  @PactTestFor(pactMethod = "noAuthToken", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -979,7 +980,7 @@ to all the interactions and two new interactions:
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken2")
+  @PactTestFor(pactMethod = "noAuthToken2", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken2(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -1185,7 +1186,7 @@ provider ❯ ./mvnw verify
 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-service ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/product-service-1.0-SNAPSHOT.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
@@ -1215,6 +1216,8 @@ In the root directory, run:
  ❯ docker-compose up
 ```
 
+Tip. add `-d` argument to the end of your docker-compose command to run the Pact Broker in detached mode.
+
 ### Publish contracts from consumer
 
 First, in the consumer project we need to tell Pact about our broker. We will use the Pact Maven plugin to
@@ -1229,7 +1232,7 @@ In `consumer/pom.xml`:
       <plugin>
           <groupId>au.com.dius.pact.provider</groupId>
           <artifactId>maven</artifactId>
-          <version>4.1.17</version>
+          <version>4.6.5</version>
           <configuration>
             <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
             <pactBrokerUsername>pact_workshop</pactBrokerUsername>
@@ -1243,7 +1246,7 @@ In `consumer/pom.xml`:
 And now we can run:
 
 ```console
-consumer ❯ ./mvnw pact:publish
+consumer ❯ ./mvnw pact:publish -Dpact.publish.consumer.version=$(git rev-parse HEAD) -Dpact.publish.consumer.branchName=$(git rev-parse --abbrev-ref HEAD)
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
@@ -1286,6 +1289,16 @@ public class PactVerificationTest {
     context.setTarget(new HttpTestTarget("localhost", port));
   }
 
+  @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+      // Select Pacts for consumers deployed or released to production, those on the main branch
+      // and those on a named branch step11, for use in our workshop
+      return new SelectorBuilder()
+        .deployedOrReleased()
+        .mainBranch()
+        .branch("step11");
+    }
+
   @TestTemplate
   @ExtendWith(PactVerificationSpringProvider.class) // <--
   void pactVerificationTestTemplate(PactVerificationContext context, HttpRequest request) {
@@ -1294,7 +1307,7 @@ public class PactVerificationTest {
       request.setHeader("Authorization", "Bearer " + generateToken());
     }
     context.verifyInteraction();
-  }  
+  }
 
 ```
 
@@ -1312,16 +1325,17 @@ pactbroker:
 Let's run the provider verification one last time after this change:
 
 ```console
-provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=1.0-SNAPSHOT -Dpact.provider.branch=test
+provider ❯ ./mvnw verify -Dpact.verifier.publishResults=true -Dpact.provider.version=$(git rev-parse HEAD) -Dpact.provider.branch=$(git rev-parse --abbrev-ref HEAD)
 
 <<< Omitted >>>
 
-Verifying a pact between ProductCatalogue (0.0.1-SNAPSHOT) and ProductService
+Verifying a pact between ProductCatalogue (41997003a6f42fe66ea00b234f05b47200474e49) and ProductService
 
   Notices:
-    1) The pact at http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a is being verified because it matches the following configured selection criterion: latest pact between a consumer and ProductService
+    1) The pact at http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a is being verified because the pact content belongs to the consumer version matching the following criterion:
+    * latest version from branch 'step11' (41997003a6f42fe66ea00b234f05b47200474e49)
 
-  [from Pact Broker http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a/metadata/c1tdW2xdPXRydWUmc1tdW2N2bl09MC4wLjEtU05BUFNIT1Q=]
+  [from Pact Broker http://localhost:9292/pacts/provider/ProductService/consumer/ProductCatalogue/pact-version/5565ba9dfe81399a66afbebb620a3d79df43d46a/metadata/c1tdW2JdPXN0ZXAxMSZzW11bbF09dHJ1ZSZzW11bY3ZdPTE2]
   get all products with no auth token
 2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2021-03-01 10:32:06.625  INFO 32791 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
@@ -1338,7 +1352,7 @@ Verifying a pact between ProductCatalogue (0.0.1-SNAPSHOT) and ProductService
 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-service ---
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
@@ -1353,29 +1367,31 @@ status of each consumer and provider on a nice dashboard. But it is much more im
 
 ### Can I deploy?
 
-With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/advanced_topics/provider_verification_results) - 
+With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/client_cli/readme#installation) - 
 the Broker will determine if a consumer or provider is safe to release to the specified environment.
 
 You can run the `can-i-deploy` checks as follows:
 
 ```console
-consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -Dlatest=true
+consumer ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductCatalogue' -DpacticipantVersion=$(git rev-parse HEAD) -DtoEnvironment=test
 [INFO] Scanning for projects...
 [INFO] 
-[INFO] ------------------< io.pact.workshop:product-service >------------------
-[INFO] Building product-service 1.0-SNAPSHOT
+[INFO] -----------------< io.pact.workshop:product-catalogue >-----------------
+[INFO] Building product-catalogue 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- maven:4.1.17:can-i-deploy (default-cli) @ product-service ---
-Computer says yes \o/ 
+[INFO] --- maven:4.6.5:can-i-deploy (default-cli) @ product-catalogue ---
+Computer says no ¯\_(ツ)_/¯ 
 
-All required verification results are published and successful
+There is no verified pact between version 41997003a6f42fe66ea00b234f05b47200474e49 of ProductCatalogue and a version of ProductService currently in test (no version is currently recorded as deployed/released in this environment)
 [INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.611 s
+[INFO] Finished at: 2024-01-30T16:16:20Z
 [INFO] ------------------------------------------------------------------------
 
-
-provider ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -Dlatest=true
+provider ❯ ./mvnw pact:can-i-deploy -Dpacticipant='ProductService' -DpacticipantVersion=$(git rev-parse HEAD) -DtoEnvironment=test
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ------------------< io.pact.workshop:product-service >------------------
@@ -1391,6 +1407,9 @@ All required verification results are published and successful
 [INFO] ------------------------------------------------------------------------
 ```
 
+NOTE:- At time of writing, there appears to be a bug when querying the provider, and we would recommend using the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/client_cli/readme#installation) standalone, rather than the Maven plugin for publishing pact, can-i-deploy and recording deployments/releases.
+
+We can now [record the deployment](https://docs.pact.io/pact_broker/recording_deployments_and_releases) of the provider, and re-run our consumer can-i-deploy check which will pass, as our verified provider, will now exist in our target environment for our consumer.
 
 
 That's it - you're now a Pact pro. Go build 🔨

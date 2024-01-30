@@ -41,11 +41,12 @@ public class PactVerificationTest {
 
   @au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors
     public static SelectorBuilder consumerVersionSelectors() {
-      // Select Pacts for consumers deployed to production with branch from CI build 
+      // Select Pacts for consumers deployed or released to production, those on the main branch
+      // and those on a named branch step11, for use in our workshop
       return new SelectorBuilder()
         .deployedOrReleased()
         .mainBranch()
-        .branch("test");
+        .branch("step11");
     }
 
   @TestTemplate
