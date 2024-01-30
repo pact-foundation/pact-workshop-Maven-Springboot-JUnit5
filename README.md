@@ -30,8 +30,8 @@ If running this as a team workshop format, you may want to take a look through t
 
 ## Requirements
 
-- JDK 8 or above
-- Maven 3
+- JDK 17+
+- Maven 3+
 - Docker for step 11
 
 ## Scenario
@@ -126,7 +126,8 @@ You can see the client interface test we created in `consumer/src/test/java/io/p
       );
     
       Product product = productServiceClient.getProductById(10);
-      assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1"))));
+      assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", null))));
+
   }
 ```
 
@@ -146,7 +147,7 @@ consumer ❯ ./mvnw verify
 [INFO] Building product-catalogue 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:resources (default-resources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] Copying 1 resource
@@ -155,7 +156,7 @@ consumer ❯ ./mvnw verify
 [INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ product-catalogue ---
 [INFO] Nothing to compile - all classes are up to date
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:testResources (default-testResources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] skip non existing resourceDirectory /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/src/test/resources
@@ -181,7 +182,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
 [INFO] Replacing main artifact with repackaged archive
@@ -356,7 +357,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "allProducts", port="9999")
+  @PactTestFor(pactMethod = "allProducts", pactVersion = PactSpecVersion.V3)
   void testAllProducts(MockServer mockServer) throws IOException {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     List<Product> products = productServiceClient.fetchProducts().getProducts();
@@ -365,7 +366,7 @@ class ProductServiceClientPactTest {
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProduct", port="9999")
+  @PactTestFor(pactMethod = "singleProduct", pactVersion = PactSpecVersion.V3)
   void testSingleProduct(MockServer mockServer) throws IOException {
     Product product = productServiceClient.getProductById(10L);
     assertThat(product, is(equalTo(new Product(10L, "28 Degrees", "CREDIT_CARD", "v1", "CC_001"))));
@@ -390,7 +391,7 @@ consumer ❯ ./mvnw verify
 [INFO] Building product-catalogue 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:resources (default-resources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] Copying 1 resource
@@ -399,7 +400,7 @@ consumer ❯ ./mvnw verify
 [INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ product-catalogue ---
 [INFO] Nothing to compile - all classes are up to date
 [INFO] 
-[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ product-catalogue ---
+[INFO] --- maven-resources-plugin:3.3.0:testResources (default-testResources) @ product-catalogue ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Using 'UTF-8' encoding to copy filtered properties files.
 [INFO] skip non existing resourceDirectory /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/src/test/resources
@@ -422,7 +423,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -575,7 +576,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -663,7 +664,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
   }
 
   @Test
-  @PactTestFor(pactMethod = "noProducts")
+  @PactTestFor(pactMethod = "noProducts", pactVersion = PactSpecVersion.V3)
   void testNoProducts(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     ProductServiceResponse products = productServiceClient.fetchProducts();
@@ -682,7 +683,7 @@ In `consumer/src/test/java/io/pact/workshop/product_catalogue/clients/ProductSer
   }
 
   @Test
-  @PactTestFor(pactMethod = "singleProductNotExists")
+  @PactTestFor(pactMethod = "singleProductNotExists", pactVersion = PactSpecVersion.V3)
   void testSingleProductNotExists(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -708,7 +709,7 @@ consumer ❯ ./mvnw verify
 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-catalogue ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-catalogue ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/consumer/target/product-catalogue-0.0.1-SNAPSHOT.jar
 [INFO] 
 [INFO] --- spring-boot-maven-plugin:2.4.3:repackage (repackage) @ product-catalogue ---
@@ -877,7 +878,7 @@ provider ❯ ./mvnw verify
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ product-service ---
+[INFO] --- maven-jar-plugin:3.3.0:jar (default-jar) @ product-service ---
 [INFO] Building jar: /home/ronald/Development/Projects/Pact/pact-workshop-Maven-Springboot-JUnit5/provider/target/product-service-1.0-SNAPSHOT.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
@@ -957,7 +958,7 @@ to all the interactions and two new interactions:
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken")
+  @PactTestFor(pactMethod = "noAuthToken", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
@@ -979,7 +980,7 @@ to all the interactions and two new interactions:
   }
 
   @Test
-  @PactTestFor(pactMethod = "noAuthToken2")
+  @PactTestFor(pactMethod = "noAuthToken2", pactVersion = PactSpecVersion.V3)
   void testNoAuthToken2(MockServer mockServer) {
     productServiceClient.setBaseUrl(mockServer.getUrl());
     try {
